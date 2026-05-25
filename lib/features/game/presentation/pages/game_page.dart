@@ -207,13 +207,13 @@ class _GamePageState extends State<GamePage> {
     final gameCubit = context.read<GameCubit>();
     gameCubit.pause();
 
-    showModalBottomSheet<void>(
+    showModalBottomSheet<bool>(
       context: context,
       backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (ctx) {
+      builder: (sheetContext) {
         return BlocBuilder<SettingsCubit, SettingsState>(
           builder: (context, settings) {
             return Padding(
@@ -247,7 +247,7 @@ class _GamePageState extends State<GamePage> {
                                 .state
                                 .toGameConfig();
                             context.read<GameCubit>().restart(config: config);
-                            Navigator.pop(ctx);
+                            Navigator.pop(sheetContext);
                           },
                         ),
                       );
@@ -270,12 +270,10 @@ class _GamePageState extends State<GamePage> {
                                   .signInWithGoogle(),
                           onEndGuestSession: auth.isSigningOut
                               ? null
-                              : () async {
-                                  await context.read<GameCubit>().stopGame();
-                                  if (!context.mounted) return;
-                                  await context.read<AuthCubit>().signOut();
-                                  if (ctx.mounted) Navigator.pop(ctx);
-                                },
+                              : () => _endSessionFromSettings(
+                                    sheetContext: sheetContext,
+                                    gameCubit: gameCubit,
+                                  ),
                         );
                       }
                       if (auth.user == null) {
@@ -286,12 +284,10 @@ class _GamePageState extends State<GamePage> {
                         isSigningOut: auth.isSigningOut,
                         onSignOut: auth.isSigningOut
                             ? null
-                            : () async {
-                                await context.read<GameCubit>().stopGame();
-                                if (!context.mounted) return;
-                                await context.read<AuthCubit>().signOut();
-                                if (ctx.mounted) Navigator.pop(ctx);
-                              },
+                            : () => _endSessionFromSettings(
+                                  sheetContext: sheetContext,
+                                  gameCubit: gameCubit,
+                                ),
                       );
                     },
                   ),
@@ -301,11 +297,21 @@ class _GamePageState extends State<GamePage> {
           },
         );
       },
-    ).whenComplete(() {
-      if (context.mounted) {
-        gameCubit.resume();
-      }
+    ).then((sessionEnded) {
+      if (!mounted) return;
+      if (sessionEnded == true) return;
+      gameCubit.resume();
     });
+  }
+
+  Future<void> _endSessionFromSettings({
+    required BuildContext sheetContext,
+    required GameCubit gameCubit,
+  }) async {
+    Navigator.of(sheetContext).pop(true);
+    await gameCubit.stopGame();
+    if (!mounted) return;
+    await context.read<AuthCubit>().signOut();
   }
 }
 
