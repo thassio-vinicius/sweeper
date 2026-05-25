@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:sweeper/core/l10n/app_localizations.dart';
-import 'package:sweeper/core/utils/clock.dart';
-import 'package:sweeper/core/auth/auth_session.dart';
-import 'package:sweeper/core/config/app_access_config.dart';
-import 'package:sweeper/features/auth/domain/repositories/auth_repository.dart';
-import 'package:sweeper/features/auth/presentation/cubit/auth_cubit.dart';
-import 'package:sweeper/features/game/domain/entities/game_config.dart';
-import 'package:sweeper/features/game/domain/repositories/btc_price_repository.dart';
-import 'package:sweeper/features/game/presentation/cubit/game_cubit.dart';
-import 'package:sweeper/features/game/presentation/pages/game_page.dart';
-import 'package:sweeper/features/settings/presentation/cubit/settings_cubit.dart';
+import 'package:sweeper_l10n/sweeper_l10n.dart';
+import 'package:sweeper_core/clock.dart';
+import 'package:sweeper_auth/session/auth_session.dart';
+import 'package:sweeper_auth/config/app_access_config.dart';
+import 'package:sweeper_auth/domain/repositories/auth_repository.dart';
+import 'package:sweeper_auth/presentation/cubit/auth_cubit.dart';
+import 'package:sweeper_game/domain/entities/game_config.dart';
+import 'package:sweeper_game/domain/repositories/btc_price_repository.dart';
+import 'package:sweeper_game/presentation/cubit/game_cubit.dart';
+import 'package:sweeper_game/presentation/pages/game_page.dart';
+import 'package:sweeper_settings/sweeper_settings.dart';
 
 class MockBtcPriceRepository extends Mock implements BtcPriceRepository {}
 

@@ -1,0 +1,21 @@
+name: sweeper_theme
+description: Design tokens, theme, and shared UI primitives for Sweeper.
+publish_to: 'none'
+version: 1.0.0
+
+environment:
+  sdk: ^3.10.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_svg: ^2.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  assets:
+    - assets/svgs/

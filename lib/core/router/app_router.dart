@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:sweeper/core/auth/auth_session.dart';
 import 'package:sweeper/core/router/auth_refresh_notifier.dart';
-import 'package:sweeper/features/auth/presentation/pages/login_page.dart';
-import 'package:sweeper/features/game/presentation/pages/game_over_page.dart';
-import 'package:sweeper/features/game/presentation/pages/game_page.dart';
+import 'package:sweeper_auth/presentation/pages/login_page.dart';
+import 'package:sweeper_auth/session/auth_session.dart';
+import 'package:sweeper_game/presentation/pages/game_over_page.dart';
+import 'package:sweeper_game/presentation/pages/game_page.dart';
 
 class AppRouter {
   AppRouter({

@@ -1,18 +1,16 @@
 import 'package:flutter/foundation.dart';
-import 'package:sweeper/core/auth/auth_session.dart';
+import 'package:sweeper_auth/session/auth_session.dart';
 
-/// Notifies [GoRouter] when auth or guest session state changes.
 class AuthRefreshNotifier extends ChangeNotifier {
-  AuthRefreshNotifier(AuthSession session) {
-    _session = session;
-    _session.addListener(notifyListeners);
+  AuthRefreshNotifier(this._authSession) {
+    _authSession.addListener(notifyListeners);
   }
 
-  late final AuthSession _session;
+  final AuthSession _authSession;
 
   @override
   void dispose() {
-    _session.removeListener(notifyListeners);
+    _authSession.removeListener(notifyListeners);
     super.dispose();
   }
 }

@@ -1,0 +1,22 @@
+name: sweeper_network
+description: HTTP client and network layer for Sweeper.
+publish_to: 'none'
+version: 1.0.0
+
+environment:
+  sdk: ^3.10.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.4.0
+  sweeper_auth:
+    path: ../sweeper_auth
+  sweeper_core:
+    path: ../sweeper_core
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  mocktail: ^1.0.4

@@ -1,6 +1,6 @@
 # Reversed Minesweeper
 
-A Flutter board game where you drag pieces onto a grid while avoiding hidden bombs. Bombs auto-detonate every 10 seconds, and magic bombs appear when the live BTC price (from Binance) is divisible by 5.
+A Flutter board game where you drag pieces onto a grid while avoiding hidden bombs. Bombs auto-detonate every 10 seconds, and magic bombs appear when the live BTC price (from Binance) lands on whole dollars ending in 0 or 5.
 
 ## Features
 
@@ -14,29 +14,55 @@ A Flutter board game where you drag pieces onto a grid while avoiding hidden bom
 - i18n: English, Portuguese, Spanish
 - Google Sign-In (bonus — requires Firebase setup)
 
-## Architecture
+## Monorepo layout
 
-Feature-first clean architecture with three layers:
+This project uses [Melos](https://melos.invertase.dev/) to manage local packages:
 
-- **Presentation** — Flutter widgets, Cubits
-- **Domain** — Entities, `GameEngine`, repository interfaces
-- **Data** — Binance WebSocket, DTOs, repository implementations
+```
+packages/
+  sweeper_core/     Shared failures, result type, clock
+  sweeper_theme/    Design tokens, theme, shared widgets
+  sweeper_l10n/     Generated localizations
+  sweeper_network/  HTTP client + interceptors
+  sweeper_settings/ Board size and user preferences
+  sweeper_auth/     Firebase/Google auth, session, login UI
+  sweeper_game/     Game domain, data, presentation
+lib/                App glue: main, DI, router, Firebase options
+```
+
+The root `sweeper` app wires packages together via `get_it`, `go_router`, and Firebase platform config.
 
 ## Prerequisites
 
 - Flutter SDK ^3.10.4
+- [Melos](https://melos.invertase.dev/) (installed via `dart pub global activate melos` or as a dev dependency)
 - Xcode (iOS) or Android Studio (Android)
 - Internet connection (Binance WebSocket)
 
 ## Getting Started
 
 ```bash
-flutter pub get
-flutter gen-l10n
+dart pub global activate melos   # once, if not already installed
+dart run melos bootstrap
 flutter run
 ```
 
+## Development commands
+
+```bash
+dart run melos bootstrap   # link local packages + pub get everywhere
+dart run melos analyze     # analyze all packages
+dart run melos test        # run package tests
+dart run melos run gen-l10n  # regenerate localizations in sweeper_l10n
+```
+
 ## Running Tests
+
+```bash
+dart run melos test
+```
+
+Or from the app root:
 
 ```bash
 flutter test
@@ -51,17 +77,6 @@ flutter test
 5. Run `flutterfire configure` or add Firebase options manually
 
 Auth gracefully degrades when Firebase is not configured.
-
-## Project Structure
-
-```
-lib/
-  core/           # DI, theme, errors, l10n, utils
-  features/
-    game/         # Main game feature (domain, data, presentation)
-    auth/         # Google sign-in (bonus)
-    settings/     # Board size picker (bonus)
-```
 
 ## Binance WebSocket
 

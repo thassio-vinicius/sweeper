@@ -12,29 +12,34 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   cupertino_icons: ^1.0.8
-  flutter_bloc: ^9.1.1
-  equatable: ^2.0.7
-  get_it: ^8.0.3
-  web_socket_channel: ^3.0.2
-  rive: ^0.13.20
-  go_router: ^15.1.2
-  intl: ^0.20.2
   firebase_core: ^3.13.0
-  firebase_auth: ^5.5.2
-  google_sign_in: ^6.3.0
-  http: ^1.4.0
-  flutter_svg: ^2.2.0
+  flutter_bloc: ^9.1.1
+  get_it: ^8.0.3
+  go_router: ^15.1.2
+  sweeper_auth:
+    path: packages/sweeper_auth
+  sweeper_core:
+    path: packages/sweeper_core
+  sweeper_game:
+    path: packages/sweeper_game
+  sweeper_l10n:
+    path: packages/sweeper_l10n
+  sweeper_network:
+    path: packages/sweeper_network
+  sweeper_settings:
+    path: packages/sweeper_settings
+  sweeper_theme:
+    path: packages/sweeper_theme
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
   bloc_test: ^10.0.0
+  melos: ^6.3.0
   mocktail: ^1.0.4
 
 flutter:
   uses-material-design: true
-  generate: true
   assets:
     - assets/animations/
-    - assets/svgs/

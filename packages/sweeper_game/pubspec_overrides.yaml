@@ -1,0 +1,12 @@
+# melos_managed_dependency_overrides: sweeper_auth,sweeper_core,sweeper_l10n,sweeper_theme,sweeper_settings
+dependency_overrides:
+  sweeper_auth:
+    path: ../sweeper_auth
+  sweeper_core:
+    path: ../sweeper_core
+  sweeper_l10n:
+    path: ../sweeper_l10n
+  sweeper_settings:
+    path: ../sweeper_settings
+  sweeper_theme:
+    path: ../sweeper_theme

@@ -2,8 +2,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:sweeper/app.dart';
 import 'package:sweeper/core/di/injection.dart';
-import 'package:sweeper/features/auth/domain/repositories/auth_repository.dart';
 import 'package:sweeper/firebase_options.dart';
+import 'package:sweeper_auth/domain/repositories/auth_repository.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
