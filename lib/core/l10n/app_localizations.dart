@@ -231,6 +231,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Paused'**
   String get paused;
+
+  /// No description provided for @magicBombBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'BTC {price} — MAGIC BOMB!'**
+  String magicBombBanner(String price);
 }
 
 class _AppLocalizationsDelegate

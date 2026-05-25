@@ -7,11 +7,29 @@ import 'package:sweeper/features/game/domain/entities/game_events.dart';
 import 'package:sweeper/features/game/domain/services/game_engine.dart';
 
 void main() {
+  group('BtcPrice', () {
+    test('landedOnNewDivisibleWhole detects new divisible whole-dollar ticks', () {
+      expect(BtcPrice.landedOnNewDivisibleWhole(null, 67455), isFalse);
+      expect(BtcPrice.landedOnNewDivisibleWhole(67455, 67455), isFalse);
+      expect(BtcPrice.landedOnNewDivisibleWhole(67454, 67455), isTrue);
+      expect(BtcPrice.landedOnNewDivisibleWhole(67450, 67455), isTrue);
+      expect(BtcPrice.landedOnNewDivisibleWhole(67455, 67456), isFalse);
+      expect(BtcPrice.landedOnNewDivisibleWhole(67455, 67460), isTrue);
+      expect(BtcPrice.landedOnNewDivisibleWhole(97660, 97665), isTrue);
+    });
+
+    test('wholeDollars matches UI rounding', () {
+      expect(BtcPrice.wholeDollars(77665.4), 77665);
+      expect(BtcPrice.wholeDollars(77665.6), 77666);
+      expect(BtcPrice.wholeDollars(77665.6) % 5, isNot(0));
+    });
+  });
+
   group('GameEngine', () {
     late GameEngine engine;
     const config = GameConfig(
       gridSize: 10,
-      maxBombs: 10,
+      maxBombs: 15,
       initialBombCount: 10,
       emptyCellBuffer: 10,
     );
@@ -131,10 +149,41 @@ void main() {
       expect(result.snapshot.board.hiddenBombCount, before - 1);
     });
 
-    test('magic bomb added when BTC price divisible by 5', () {
+    test('magic bomb not added when displayed price is not divisible by 5', () {
+      engine.initialize();
+      engine.onBtcPriceUpdate(
+        BtcPrice(priceUsd: 77664, receivedAt: DateTime.now()),
+      );
+      final result = engine.onBtcPriceUpdate(
+        BtcPrice(priceUsd: 77665.6, receivedAt: DateTime.now()),
+      );
+
+      expect(result.events, isEmpty);
+      expect(BtcPrice.wholeDollars(77665.6) % 5, isNot(0));
+    });
+
+    test('magic bomb added when displayed price crosses into divisible by 5', () {
+      engine.initialize();
+      engine.onBtcPriceUpdate(
+        BtcPrice(priceUsd: 77664, receivedAt: DateTime.now()),
+      );
+      final result = engine.onBtcPriceUpdate(
+        BtcPrice(priceUsd: 77665.4, receivedAt: DateTime.now()),
+      );
+
+      expect(result.events, contains(isA<MagicBombAddedEvent>()));
+      final event = result.events.whereType<MagicBombAddedEvent>().first;
+      expect(event.triggerWholeDollars, 77665);
+      expect(event.triggerWholeDollars % 5, 0);
+    });
+
+    test('magic bomb added when BTC crosses into divisible by 5', () {
       engine.initialize();
       final before = engine.snapshot.board.hiddenBombCount;
 
+      engine.onBtcPriceUpdate(
+        BtcPrice(priceUsd: 67454, receivedAt: DateTime.now()),
+      );
       final result = engine.onBtcPriceUpdate(
         BtcPrice(priceUsd: 67455, receivedAt: DateTime.now()),
       );
@@ -144,8 +193,39 @@ void main() {
       expect(result.snapshot.lastMagicBombTriggerPrice, 67455);
     });
 
-    test('magic bomb dedupes same price', () {
+    test('magic bomb added when jumping between divisible prices', () {
       engine.initialize();
+      final before = engine.snapshot.board.hiddenBombCount;
+
+      engine.onBtcPriceUpdate(
+        BtcPrice(priceUsd: 67450, receivedAt: DateTime.now()),
+      );
+      final result = engine.onBtcPriceUpdate(
+        BtcPrice(priceUsd: 67460, receivedAt: DateTime.now()),
+      );
+
+      expect(result.events, contains(isA<MagicBombAddedEvent>()));
+      expect(result.snapshot.board.hiddenBombCount, before + 1);
+      expect(result.snapshot.lastMagicBombTriggerPrice, 67460);
+    });
+
+    test('magic bomb not added on first tick without prior price', () {
+      engine.initialize();
+      final before = engine.snapshot.board.hiddenBombCount;
+
+      final result = engine.onBtcPriceUpdate(
+        BtcPrice(priceUsd: 67455, receivedAt: DateTime.now()),
+      );
+
+      expect(result.events, isEmpty);
+      expect(result.snapshot.board.hiddenBombCount, before);
+    });
+
+    test('magic bomb dedupes same divisible integer', () {
+      engine.initialize();
+      engine.onBtcPriceUpdate(
+        BtcPrice(priceUsd: 67454, receivedAt: DateTime.now()),
+      );
       engine.onBtcPriceUpdate(
         BtcPrice(priceUsd: 67455, receivedAt: DateTime.now()),
       );
@@ -163,12 +243,91 @@ void main() {
       engine.initialize();
       final before = engine.snapshot.board.hiddenBombCount;
 
+      engine.onBtcPriceUpdate(
+        BtcPrice(priceUsd: 67456, receivedAt: DateTime.now()),
+      );
       final result = engine.onBtcPriceUpdate(
         BtcPrice(priceUsd: 67457, receivedAt: DateTime.now()),
       );
 
       expect(result.events, isEmpty);
       expect(result.snapshot.board.hiddenBombCount, before);
+    });
+
+    test('failed cap does not consume trigger price', () {
+      const tightConfig = GameConfig(
+        gridSize: 10,
+        maxBombs: 10,
+        initialBombCount: 10,
+        emptyCellBuffer: 10,
+      );
+      final tightEngine = GameEngine(config: tightConfig, random: Random(42));
+      tightEngine.initialize();
+
+      tightEngine.onBtcPriceUpdate(
+        BtcPrice(priceUsd: 67454, receivedAt: DateTime.now()),
+      );
+      final blocked = tightEngine.onBtcPriceUpdate(
+        BtcPrice(priceUsd: 67455, receivedAt: DateTime.now()),
+      );
+
+      expect(blocked.events, isEmpty);
+      expect(tightEngine.snapshot.lastMagicBombTriggerPrice, isNull);
+    });
+
+    test('magic bomb adds after discoveries when below max bombs', () {
+      engine.initialize();
+      var discoveries = 0;
+
+      while (discoveries < 3) {
+        final board = engine.snapshot.board;
+        int? fromR;
+        int? fromC;
+        outer:
+        for (var r = 0; r < config.gridSize; r++) {
+          for (var c = 0; c < config.gridSize; c++) {
+            if (board.cellAt(r, c).piece != null) {
+              fromR = r;
+              fromC = c;
+              break outer;
+            }
+          }
+        }
+
+        var moved = false;
+        for (var r = 0; r < config.gridSize; r++) {
+          for (var c = 0; c < config.gridSize; c++) {
+            if (engine.snapshot.board.cellAt(r, c).bombStatus ==
+                    BombStatus.hidden &&
+                engine.snapshot.board.cellAt(r, c).piece == null) {
+              engine.movePiece(
+                fromRow: fromR!,
+                fromCol: fromC!,
+                toRow: r,
+                toCol: c,
+              );
+              discoveries++;
+              moved = true;
+              break;
+            }
+          }
+          if (moved) break;
+        }
+        expect(moved, isTrue);
+      }
+
+      expect(engine.snapshot.board.hiddenBombCount, 7);
+
+      engine.onBtcPriceUpdate(
+        BtcPrice(priceUsd: 67454, receivedAt: DateTime.now()),
+      );
+      final before = engine.snapshot.board.hiddenBombCount;
+      final result = engine.onBtcPriceUpdate(
+        BtcPrice(priceUsd: 67455, receivedAt: DateTime.now()),
+      );
+
+      expect(result.events, contains(isA<MagicBombAddedEvent>()));
+      expect(result.snapshot.board.hiddenBombCount, before + 1);
     });
 
     test('game over when all bombs discovered or exploded', () {

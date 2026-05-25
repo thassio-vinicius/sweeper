@@ -3,7 +3,7 @@ import 'package:equatable/equatable.dart';
 class GameConfig extends Equatable {
   const GameConfig({
     this.gridSize = 10,
-    this.maxBombs = 10,
+    this.maxBombs = 15,
     this.initialBombCount = 10,
     this.emptyCellBuffer = 10,
     this.tickInterval = const Duration(seconds: 10),

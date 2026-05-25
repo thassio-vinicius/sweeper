@@ -83,4 +83,9 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get paused => 'Pausado';
+
+  @override
+  String magicBombBanner(String price) {
+    return 'BTC $price — BOMBA MÁGICA!';
+  }
 }

@@ -30,14 +30,14 @@ final class BombExplodedEvent extends GameEvent {
 }
 
 final class MagicBombAddedEvent extends GameEvent {
-  const MagicBombAddedEvent(this.row, this.col, this.triggerPrice);
+  const MagicBombAddedEvent(this.row, this.col, this.triggerWholeDollars);
 
   final int row;
   final int col;
-  final int triggerPrice;
+  final int triggerWholeDollars;
 
   @override
-  List<Object?> get props => [row, col, triggerPrice];
+  List<Object?> get props => [row, col, triggerWholeDollars];
 }
 
 final class InvalidMoveEvent extends GameEvent {

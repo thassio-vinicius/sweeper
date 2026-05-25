@@ -31,5 +31,13 @@
   "settings": "Settings",
   "pause": "Pause",
   "resume": "Resume",
-  "paused": "Paused"
+  "paused": "Paused",
+  "magicBombBanner": "BTC {price} — MAGIC BOMB!",
+  "@magicBombBanner": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  }
 }

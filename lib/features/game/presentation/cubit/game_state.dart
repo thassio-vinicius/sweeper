@@ -19,6 +19,9 @@ class GameState extends Equatable {
     this.explosionAt,
     this.magicBombAt,
     this.magicBombGeneration = 0,
+    this.magicBombBannerWholeDollars,
+    this.magicBombBannerGeneration = 0,
+    this.remainingPulseGeneration = 0,
     this.errorMessage,
     this.snapBackCell,
     this.snapBackGeneration = 0,
@@ -31,6 +34,9 @@ class GameState extends Equatable {
   final ({int row, int col})? explosionAt;
   final ({int row, int col})? magicBombAt;
   final int magicBombGeneration;
+  final int? magicBombBannerWholeDollars;
+  final int magicBombBannerGeneration;
+  final int remainingPulseGeneration;
   final String? errorMessage;
   final ({int row, int col})? snapBackCell;
   final int snapBackGeneration;
@@ -49,11 +55,15 @@ class GameState extends Equatable {
     ({int row, int col})? explosionAt,
     ({int row, int col})? magicBombAt,
     int? magicBombGeneration,
+    int? magicBombBannerWholeDollars,
+    int? magicBombBannerGeneration,
+    int? remainingPulseGeneration,
     String? errorMessage,
     ({int row, int col})? snapBackCell,
     int? snapBackGeneration,
     bool clearExplosion = false,
     bool clearMagicBomb = false,
+    bool clearMagicBombBanner = false,
     bool clearError = false,
     bool clearSnapBack = false,
   }) {
@@ -65,6 +75,13 @@ class GameState extends Equatable {
       explosionAt: clearExplosion ? null : (explosionAt ?? this.explosionAt),
       magicBombAt: clearMagicBomb ? null : (magicBombAt ?? this.magicBombAt),
       magicBombGeneration: magicBombGeneration ?? this.magicBombGeneration,
+      magicBombBannerWholeDollars: clearMagicBombBanner
+          ? null
+          : (magicBombBannerWholeDollars ?? this.magicBombBannerWholeDollars),
+      magicBombBannerGeneration:
+          magicBombBannerGeneration ?? this.magicBombBannerGeneration,
+      remainingPulseGeneration:
+          remainingPulseGeneration ?? this.remainingPulseGeneration,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
       snapBackCell: clearSnapBack ? null : (snapBackCell ?? this.snapBackCell),
       snapBackGeneration: snapBackGeneration ?? this.snapBackGeneration,
@@ -80,6 +97,9 @@ class GameState extends Equatable {
         explosionAt,
         magicBombAt,
         magicBombGeneration,
+        magicBombBannerWholeDollars,
+        magicBombBannerGeneration,
+        remainingPulseGeneration,
         errorMessage,
         snapBackCell,
         snapBackGeneration,

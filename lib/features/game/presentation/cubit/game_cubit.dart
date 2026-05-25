@@ -28,6 +28,7 @@ class GameCubit extends Cubit<GameState> {
   StreamSubscription<int>? _countdownSubscription;
   Timer? _explosionClearTimer;
   Timer? _magicBombClearTimer;
+  Timer? _magicBombBannerClearTimer;
   GameStatus? _statusBeforePause;
 
   Future<void> startGame({GameConfig? config}) async {
@@ -113,13 +114,20 @@ class GameCubit extends Cubit<GameState> {
     );
   }
 
-  void _applyResult(GameEngineResult result) {
+  void _applyResult(
+    GameEngineResult result, {
+    BtcPrice? btcPrice,
+    int? btcPriceDirection,
+  }) {
     var newStatus = state.status == GameStatus.paused
         ? GameStatus.paused
         : state.status;
     ({int row, int col})? explosionAt;
     ({int row, int col})? magicBombAt;
     var magicBombGeneration = state.magicBombGeneration;
+    var magicBombBannerGeneration = state.magicBombBannerGeneration;
+    var remainingPulseGeneration = state.remainingPulseGeneration;
+    int? magicBombBannerWholeDollars;
     var isGameOver = result.snapshot.phase == GamePhase.gameOver;
 
     for (final event in result.events) {
@@ -137,10 +145,14 @@ class GameCubit extends Cubit<GameState> {
           newStatus = GameStatus.gameOver;
         case InvalidMoveEvent():
           break;
-        case MagicBombAddedEvent(:final row, :final col):
+        case MagicBombAddedEvent(:final row, :final col, :final triggerWholeDollars):
           magicBombAt = (row: row, col: col);
           magicBombGeneration++;
+          magicBombBannerWholeDollars = triggerWholeDollars;
+          magicBombBannerGeneration++;
+          remainingPulseGeneration++;
           _scheduleMagicBombClear();
+          _scheduleMagicBombBannerClear();
       }
     }
 
@@ -148,8 +160,10 @@ class GameCubit extends Cubit<GameState> {
       newStatus = GameStatus.gameOver;
       _explosionClearTimer?.cancel();
       _magicBombClearTimer?.cancel();
+      _magicBombBannerClearTimer?.cancel();
       explosionAt = null;
       magicBombAt = null;
+      magicBombBannerWholeDollars = null;
       _stopGameLoop();
     }
 
@@ -157,12 +171,18 @@ class GameCubit extends Cubit<GameState> {
       state.copyWith(
         snapshot: result.snapshot,
         status: newStatus,
+        btcPrice: btcPrice,
+        btcPriceDirection: btcPriceDirection,
         explosionAt: explosionAt,
         magicBombAt: magicBombAt,
         magicBombGeneration: magicBombGeneration,
+        magicBombBannerWholeDollars: magicBombBannerWholeDollars,
+        magicBombBannerGeneration: magicBombBannerGeneration,
+        remainingPulseGeneration: remainingPulseGeneration,
         clearSnapBack: true,
         clearExplosion: isGameOver,
         clearMagicBomb: isGameOver,
+        clearMagicBombBanner: isGameOver,
       ),
     );
   }
@@ -191,6 +211,14 @@ class GameCubit extends Cubit<GameState> {
     _magicBombClearTimer = Timer(const Duration(milliseconds: 900), () {
       if (isClosed) return;
       emit(state.copyWith(clearMagicBomb: true));
+    });
+  }
+
+  void _scheduleMagicBombBannerClear() {
+    _magicBombBannerClearTimer?.cancel();
+    _magicBombBannerClearTimer = Timer(const Duration(milliseconds: 2400), () {
+      if (isClosed) return;
+      emit(state.copyWith(clearMagicBombBanner: true));
     });
   }
 
@@ -231,8 +259,61 @@ class GameCubit extends Cubit<GameState> {
   void _stopGameLoop() {
     _explosionClearTimer?.cancel();
     _magicBombClearTimer?.cancel();
+    _magicBombBannerClearTimer?.cancel();
     _countdownSubscription?.cancel();
     _countdownSubscription = null;
+  }
+
+  void _handleBtcPrice(BtcPrice price) {
+    if (isClosed) return;
+
+    final prevWhole = state.btcPrice?.wholeDollarPrice;
+    final newWhole = price.wholeDollarPrice;
+    var direction = state.btcPriceDirection;
+    if (prevWhole != null) {
+      if (newWhole > prevWhole) {
+        direction = 1;
+      } else if (newWhole < prevWhole) {
+        direction = -1;
+      }
+    } else {
+      direction = 1;
+    }
+
+    final canProcessEngine = _engine != null &&
+        state.status != GameStatus.gameOver &&
+        _engine!.snapshot.phase != GamePhase.gameOver;
+
+    if (!canProcessEngine) {
+      emit(
+        state.copyWith(
+          btcPrice: price,
+          btcPriceDirection: direction,
+          clearError: true,
+        ),
+      );
+      return;
+    }
+
+    if (state.status == GameStatus.paused) {
+      final observed = _engine!.observeBtcPrice(price);
+      emit(
+        state.copyWith(
+          btcPrice: price,
+          btcPriceDirection: direction,
+          snapshot: observed.snapshot,
+          clearError: true,
+        ),
+      );
+      return;
+    }
+
+    final result = _engine!.onBtcPriceUpdate(price);
+    _applyResult(
+      result,
+      btcPrice: price,
+      btcPriceDirection: direction,
+    );
   }
 
   Future<void> _startBtcStream() async {
@@ -240,37 +321,7 @@ class GameCubit extends Cubit<GameState> {
       await _btcSubscription?.cancel();
       await _btcPriceRepository.connect();
       _btcSubscription = _btcPriceRepository.watchPrice().listen(
-        (price) {
-          if (isClosed) return;
-
-          final prev = state.btcPrice?.priceUsd;
-          var direction = state.btcPriceDirection;
-          if (prev != null) {
-            if (price.priceUsd > prev) {
-              direction = 1;
-            } else if (price.priceUsd < prev) {
-              direction = -1;
-            }
-          } else {
-            direction = 1;
-          }
-
-          emit(
-            state.copyWith(
-              btcPrice: price,
-              btcPriceDirection: direction,
-              clearError: true,
-            ),
-          );
-
-          if (_engine != null &&
-              state.status != GameStatus.gameOver &&
-              state.status != GameStatus.paused &&
-              _engine!.snapshot.phase != GamePhase.gameOver) {
-            final result = _engine!.onBtcPriceUpdate(price);
-            _applyResult(result);
-          }
-        },
+        _handleBtcPrice,
         onError: (_) {
           if (isClosed) return;
           emit(

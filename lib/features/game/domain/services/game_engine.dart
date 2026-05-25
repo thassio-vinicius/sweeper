@@ -181,6 +181,16 @@ class GameEngine {
     return GameEngineResult(snapshot: _snapshot!);
   }
 
+  GameEngineResult observeBtcPrice(BtcPrice price) {
+    if (_snapshot == null) {
+      throw StateError('GameEngine not initialized.');
+    }
+    _snapshot = _snapshot!.copyWith(
+      lastSeenBtcIntegerPrice: price.wholeDollarPrice,
+    );
+    return GameEngineResult(snapshot: _snapshot!);
+  }
+
   GameEngineResult onBtcPriceUpdate(BtcPrice price) {
     if (_snapshot == null) {
       throw StateError('GameEngine not initialized.');
@@ -188,23 +198,25 @@ class GameEngine {
     if (_snapshot!.phase == GamePhase.gameOver) {
       return GameEngineResult(snapshot: _snapshot!);
     }
-    if (!price.isDivisibleByFive) {
+
+    final newWhole = price.wholeDollarPrice;
+    final prevWhole = _snapshot!.lastSeenBtcIntegerPrice;
+
+    _snapshot = _snapshot!.copyWith(lastSeenBtcIntegerPrice: newWhole);
+
+    if (!BtcPrice.landedOnNewDivisibleWhole(prevWhole, newWhole)) {
       return GameEngineResult(snapshot: _snapshot!);
     }
 
-    if (_snapshot!.lastMagicBombTriggerPrice == price.integerPrice) {
+    if (_snapshot!.lastMagicBombTriggerPrice == newWhole) {
       return GameEngineResult(snapshot: _snapshot!);
     }
 
-    final currentHidden = _snapshot!.board.hiddenBombCount;
-    final totalActive = _snapshot!.discoveredBombCount +
-        _snapshot!.explodedBombCount +
-        currentHidden;
+    // Exploded bombs no longer occupy the board — only hidden + discovered count.
+    final activeBombs = _snapshot!.board.hiddenBombCount +
+        _snapshot!.discoveredBombCount;
 
-    if (totalActive >= _config.maxBombs) {
-      _snapshot = _snapshot!.copyWith(
-        lastMagicBombTriggerPrice: price.integerPrice,
-      );
+    if (activeBombs >= _config.maxBombs) {
       return GameEngineResult(snapshot: _snapshot!);
     }
 
@@ -221,11 +233,11 @@ class GameEngine {
 
     _snapshot = _snapshot!.copyWith(
       board: Board(cells: cells, gridSize: _config.gridSize),
-      lastMagicBombTriggerPrice: price.integerPrice,
+      lastMagicBombTriggerPrice: newWhole,
     );
 
     return _finalize([
-      MagicBombAddedEvent(target.row, target.col, price.integerPrice),
+      MagicBombAddedEvent(target.row, target.col, newWhole),
     ]);
   }
 

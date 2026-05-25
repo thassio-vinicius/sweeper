@@ -84,6 +84,7 @@ class GameSnapshot extends Equatable {
     required this.phase,
     required this.config,
     this.lastMagicBombTriggerPrice,
+    this.lastSeenBtcIntegerPrice,
     this.secondsUntilNextBlast,
   });
 
@@ -93,6 +94,7 @@ class GameSnapshot extends Equatable {
   final GamePhase phase;
   final GameConfig config;
   final int? lastMagicBombTriggerPrice;
+  final int? lastSeenBtcIntegerPrice;
   final int? secondsUntilNextBlast;
 
   int get remainingHiddenBombs => board.hiddenBombCount;
@@ -103,6 +105,7 @@ class GameSnapshot extends Equatable {
     int? explodedBombCount,
     GamePhase? phase,
     int? lastMagicBombTriggerPrice,
+    int? lastSeenBtcIntegerPrice,
     int? secondsUntilNextBlast,
   }) {
     return GameSnapshot(
@@ -113,6 +116,8 @@ class GameSnapshot extends Equatable {
       config: config,
       lastMagicBombTriggerPrice:
           lastMagicBombTriggerPrice ?? this.lastMagicBombTriggerPrice,
+      lastSeenBtcIntegerPrice:
+          lastSeenBtcIntegerPrice ?? this.lastSeenBtcIntegerPrice,
       secondsUntilNextBlast:
           secondsUntilNextBlast ?? this.secondsUntilNextBlast,
     );
@@ -126,6 +131,7 @@ class GameSnapshot extends Equatable {
         phase,
         config,
         lastMagicBombTriggerPrice,
+        lastSeenBtcIntegerPrice,
         secondsUntilNextBlast,
       ];
 }
@@ -136,9 +142,21 @@ class BtcPrice extends Equatable {
   final double priceUsd;
   final DateTime receivedAt;
 
-  int get integerPrice => priceUsd.floor();
+  /// Whole-dollar value shown in the UI (matches [formatBtcPrice] rounding).
+  static int wholeDollars(double priceUsd) => priceUsd.round();
 
-  bool get isDivisibleByFive => integerPrice % 5 == 0;
+  int get wholeDollarPrice => wholeDollars(priceUsd);
+
+  int get integerPrice => wholeDollarPrice;
+
+  bool get isDivisibleByFive => wholeDollarPrice % 5 == 0;
+
+  /// True when the displayed whole-dollar price just changed to a new multiple of 5.
+  static bool landedOnNewDivisibleWhole(int? previousWhole, int currentWhole) {
+    if (currentWhole % 5 != 0) return false;
+    if (previousWhole == null) return false;
+    return previousWhole != currentWhole;
+  }
 
   @override
   List<Object?> get props => [priceUsd, receivedAt];

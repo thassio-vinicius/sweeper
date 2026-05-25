@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sweeper/core/theme/app_colors.dart';
 import 'package:sweeper/core/theme/app_spacing.dart';
+import 'package:sweeper/features/game/domain/entities/game_entities.dart';
 
 class StatCard extends StatelessWidget {
   const StatCard({
@@ -11,6 +12,7 @@ class StatCard extends StatelessWidget {
     required this.valueColor,
     this.subValue,
     this.subValueColor,
+    this.pulseGeneration = 0,
   });
 
   final String label;
@@ -19,6 +21,7 @@ class StatCard extends StatelessWidget {
   final Color valueColor;
   final String? subValue;
   final Color? subValueColor;
+  final int pulseGeneration;
 
   @override
   Widget build(BuildContext context) {
@@ -60,22 +63,11 @@ class StatCard extends StatelessWidget {
                 Row(
                   children: [
                     Flexible(
-                      child: Text(
-                        value,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 14,
-                          height: 1.1,
-                          fontWeight: FontWeight.w700,
-                          color: valueColor,
-                          shadows: [
-                            Shadow(
-                              color: valueColor.withValues(alpha: 0.5),
-                              blurRadius: 8,
-                            ),
-                          ],
-                        ),
+                      child: _PulsingValue(
+                        key: ValueKey(pulseGeneration),
+                        value: value,
+                        valueColor: valueColor,
+                        pulseGeneration: pulseGeneration,
                       ),
                     ),
                     if (subValue != null) ...[
@@ -99,12 +91,98 @@ class StatCard extends StatelessWidget {
   }
 }
 
-String formatBtcPrice(double? price) {
-  if (price == null) return '--';
-  return '\$${price.toStringAsFixed(0).replaceAllMapped(
+class _PulsingValue extends StatefulWidget {
+  const _PulsingValue({
+    super.key,
+    required this.value,
+    required this.valueColor,
+    required this.pulseGeneration,
+  });
+
+  final String value;
+  final Color valueColor;
+  final int pulseGeneration;
+
+  @override
+  State<_PulsingValue> createState() => _PulsingValueState();
+}
+
+class _PulsingValueState extends State<_PulsingValue>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late Animation<double> _scale;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 650),
+      value: 1,
+    );
+    _scale = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 1, end: 1.45), weight: 35),
+      TweenSequenceItem(tween: Tween(begin: 1.45, end: 1), weight: 65),
+    ]).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+  }
+
+  @override
+  void didUpdateWidget(_PulsingValue oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.pulseGeneration != oldWidget.pulseGeneration &&
+        widget.pulseGeneration > 0) {
+      _controller.forward(from: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _scale,
+      builder: (context, child) {
+        return Transform.scale(
+          scale: _scale.value,
+          alignment: Alignment.centerLeft,
+          child: child,
+        );
+      },
+      child: Text(
+        widget.value,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontSize: 14,
+          height: 1.1,
+          fontWeight: FontWeight.w700,
+          color: widget.valueColor,
+          shadows: [
+            Shadow(
+              color: widget.valueColor.withValues(alpha: 0.5),
+              blurRadius: 8 * _scale.value,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+String formatWholeDollars(int wholeDollars) {
+  return '\$${wholeDollars.toString().replaceAllMapped(
         RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
         (m) => '${m[1]},',
       )}';
+}
+
+String formatBtcPrice(double? price) {
+  if (price == null) return '--';
+  return formatWholeDollars(BtcPrice.wholeDollars(price));
 }
 
 String formatTimer(int seconds) {

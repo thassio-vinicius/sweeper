@@ -9,7 +9,7 @@ class PieceVisual extends StatelessWidget {
   const PieceVisual({
     super.key,
     required this.size,
-    this.glowing = true,
+    this.glowing = false,
   });
 
   final double size;
@@ -30,8 +30,8 @@ class PieceVisual extends StatelessWidget {
             ? [
                 BoxShadow(
                   color: color.withValues(alpha: 0.6),
-                  blurRadius: 16,
-                  spreadRadius: 2,
+                  blurRadius: 12,
+                  spreadRadius: 1,
                 ),
               ]
             : null,
@@ -40,7 +40,7 @@ class PieceVisual extends StatelessWidget {
         child: Text(
           symbol,
           style: TextStyle(
-            fontSize: size * 0.4,
+            fontSize: size * 0.42,
             color: AppColors.background,
             fontWeight: FontWeight.bold,
           ),
@@ -83,6 +83,7 @@ class _SnapBackDraggablePieceState extends State<SnapBackDraggablePiece>
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 400),
+      value: 1,
     );
     _bounce = CurvedAnimation(parent: _controller, curve: Curves.elasticOut);
   }
@@ -106,40 +107,46 @@ class _SnapBackDraggablePieceState extends State<SnapBackDraggablePiece>
   @override
   Widget build(BuildContext context) {
     final size = widget.pieceSize;
-    final piece = PieceVisual(size: size);
+    final restingPiece = PieceVisual(size: size);
 
     if (!widget.enabled) {
-      return piece;
+      return restingPiece;
+    }
+
+    final draggable = Draggable<BoardDragData>(
+      data: widget.dragData,
+      dragAnchorStrategy: pointerDragAnchorStrategy,
+      feedback: Material(
+        color: Colors.transparent,
+        elevation: 8,
+        child: PieceVisual(size: size * 1.2, glowing: true),
+      ),
+      childWhenDragging: Opacity(opacity: 0.3, child: restingPiece),
+      onDragEnd: (details) {
+        if (!details.wasAccepted) {
+          widget.onDragRejected();
+        }
+      },
+      child: restingPiece,
+    );
+
+    if (!_controller.isAnimating && _controller.value >= 1) {
+      return draggable;
     }
 
     return AnimatedBuilder(
       animation: _bounce,
       builder: (context, child) {
-        final offset = (1 - _bounce.value) * 12;
+        final offset = (1 - _bounce.value) * 10;
         return Transform.translate(
           offset: Offset(0, -offset),
           child: Transform.scale(
-            scale: 1 + (1 - _bounce.value) * 0.15,
+            scale: 1 + (1 - _bounce.value) * 0.12,
             child: child,
           ),
         );
       },
-      child: Draggable<BoardDragData>(
-        data: widget.dragData,
-        dragAnchorStrategy: pointerDragAnchorStrategy,
-        feedback: Material(
-          color: Colors.transparent,
-          elevation: 8,
-          child: PieceVisual(size: size * 1.1, glowing: true),
-        ),
-        childWhenDragging: Opacity(opacity: 0.25, child: piece),
-        onDragEnd: (details) {
-          if (!details.wasAccepted) {
-            widget.onDragRejected();
-          }
-        },
-        child: piece,
-      ),
+      child: draggable,
     );
   }
 }
@@ -166,7 +173,8 @@ class BoardCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isScorched = cell.bombStatus == BombStatus.exploded && cell.piece == null;
+    final isScorched =
+        cell.bombStatus == BombStatus.exploded && cell.piece == null;
 
     return DragTarget<BoardDragData>(
       onWillAcceptWithDetails: (details) {
@@ -183,58 +191,56 @@ class BoardCell extends StatelessWidget {
         final isHighlighted = candidateData.isNotEmpty;
         final isRejectedTarget = rejectedData.isNotEmpty;
 
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          decoration: BoxDecoration(
-            color: isRejectedTarget
-                ? AppColors.coralRed.withValues(alpha: 0.12)
-                : isHighlighted
-                    ? AppColors.cyan.withValues(alpha: 0.15)
-                    : isScorched
-                        ? AppColors.coralRed.withValues(alpha: 0.08)
-                        : AppColors.cellEmpty,
-            borderRadius: BorderRadius.circular(AppSpacing.cellRadius),
-            border: Border.all(
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(AppSpacing.cellRadius),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            decoration: BoxDecoration(
               color: isRejectedTarget
-                  ? AppColors.coralRed.withValues(alpha: 0.4)
+                  ? AppColors.coralRed.withValues(alpha: 0.12)
                   : isHighlighted
-                      ? AppColors.cyan.withValues(alpha: 0.5)
+                      ? AppColors.cyan.withValues(alpha: 0.15)
                       : isScorched
-                          ? AppColors.coralRed.withValues(alpha: 0.25)
-                          : AppColors.cellBorder,
+                          ? AppColors.coralRed.withValues(alpha: 0.08)
+                          : AppColors.cellEmpty,
+              borderRadius: BorderRadius.circular(AppSpacing.cellRadius),
+              border: Border.all(
+                color: isRejectedTarget
+                    ? AppColors.coralRed.withValues(alpha: 0.4)
+                    : isHighlighted
+                        ? AppColors.cyan.withValues(alpha: 0.5)
+                        : isScorched
+                            ? AppColors.coralRed.withValues(alpha: 0.25)
+                            : AppColors.cellBorder,
+              ),
             ),
-          ),
-          child: Stack(
-            children: [
-              if (isScorched)
-                Positioned(
-                  right: 2,
-                  bottom: 2,
-                  child: Icon(
-                    Icons.local_fire_department,
-                    size: pieceSize * 0.28,
-                    color: AppColors.coralRed.withValues(alpha: 0.45),
-                  ),
-                ),
-              if (cell.piece != null)
-                Center(
-                  child: SnapBackDraggablePiece(
-                    dragData: BoardDragData(
-                      piece: cell.piece!,
-                      fromRow: cell.row,
-                      fromCol: cell.col,
+            child: cell.piece != null
+                ? Center(
+                    child: SnapBackDraggablePiece(
+                      dragData: BoardDragData(
+                        piece: cell.piece!,
+                        fromRow: cell.row,
+                        fromCol: cell.col,
+                      ),
+                      pieceSize: pieceSize,
+                      snapBackGeneration: snapBackGeneration,
+                      shouldSnapBack: snapBackCell != null &&
+                          snapBackCell!.row == cell.row &&
+                          snapBackCell!.col == cell.col,
+                      onDragRejected: () =>
+                          onInvalidDrop(cell.row, cell.col),
+                      enabled: isInteractive,
                     ),
-                    pieceSize: pieceSize,
-                    snapBackGeneration: snapBackGeneration,
-                    shouldSnapBack: snapBackCell != null &&
-                        snapBackCell!.row == cell.row &&
-                        snapBackCell!.col == cell.col,
-                    onDragRejected: () =>
-                        onInvalidDrop(cell.row, cell.col),
-                    enabled: isInteractive,
-                  ),
-                ),
-            ],
+                  )
+                : isScorched
+                    ? Center(
+                        child: Icon(
+                          Icons.local_fire_department,
+                          size: pieceSize * 0.55,
+                          color: AppColors.coralRed.withValues(alpha: 0.5),
+                        ),
+                      )
+                    : null,
           ),
         );
       },
@@ -265,7 +271,8 @@ class BoardGrid extends StatelessWidget {
     required int toRow,
     required int toCol,
   }) onMovePiece;
-  final void Function({required int fromRow, required int fromCol}) onInvalidDrop;
+  final void Function({required int fromRow, required int fromCol})
+      onInvalidDrop;
   final ({int row, int col})? explosionAt;
   final ({int row, int col})? magicBombAt;
   final int magicBombGeneration;
@@ -283,10 +290,10 @@ class BoardGrid extends StatelessWidget {
         final gridSize = board.gridSize;
         final cellSize =
             (constraints.maxWidth - gap * (gridSize - 1)) / gridSize;
-        final pieceSize = cellSize * 0.55;
+        final pieceSize = cellSize * 0.62;
 
         return Stack(
-          clipBehavior: Clip.none,
+          clipBehavior: Clip.hardEdge,
           children: [
             GridView.builder(
               shrinkWrap: true,
@@ -322,7 +329,7 @@ class BoardGrid extends StatelessWidget {
                 );
               },
             ),
-            if (explosionAt != null) ...[
+            if (explosionAt != null)
               Builder(
                 builder: (context) {
                   final pos = _cellTopLeft(
@@ -339,8 +346,7 @@ class BoardGrid extends StatelessWidget {
                   );
                 },
               ),
-            ],
-            if (magicBombAt != null) ...[
+            if (magicBombAt != null)
               Builder(
                 builder: (context) {
                   final pos = _cellTopLeft(
@@ -358,7 +364,6 @@ class BoardGrid extends StatelessWidget {
                   );
                 },
               ),
-            ],
           ],
         );
       },

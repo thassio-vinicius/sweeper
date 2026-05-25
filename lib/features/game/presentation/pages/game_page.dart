@@ -9,6 +9,7 @@ import 'package:sweeper/features/game/presentation/cubit/game_cubit.dart';
 import 'package:sweeper/features/game/presentation/cubit/game_state.dart';
 import 'package:sweeper/features/game/presentation/widgets/board_grid.dart';
 import 'package:sweeper/features/game/presentation/widgets/game_hud.dart';
+import 'package:sweeper/features/game/presentation/widgets/magic_bomb_banner.dart';
 import 'package:sweeper/features/settings/presentation/cubit/settings_cubit.dart';
 
 class GamePage extends StatefulWidget {
@@ -156,8 +157,9 @@ class _GamePageState extends State<GamePage> {
                                   const SizedBox(height: AppSpacing.md),
                                   Text(
                                     l10n.paused,
-                                    style:
-                                        Theme.of(context).textTheme.headlineLarge,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineLarge,
                                   ),
                                   const SizedBox(height: AppSpacing.lg),
                                   FilledButton.icon(
@@ -166,6 +168,24 @@ class _GamePageState extends State<GamePage> {
                                     label: Text(l10n.resume),
                                   ),
                                 ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      if (state.magicBombBannerWholeDollars != null)
+                        Positioned(
+                          top: AppSpacing.md,
+                          left: AppSpacing.md,
+                          right: AppSpacing.md,
+                          child: Align(
+                            alignment: Alignment.topCenter,
+                            child: MagicBombBanner(
+                              key: ValueKey(state.magicBombBannerGeneration),
+                              generation: state.magicBombBannerGeneration,
+                              message: l10n.magicBombBanner(
+                                formatWholeDollars(
+                                  state.magicBombBannerWholeDollars!,
+                                ),
                               ),
                             ),
                           ),
@@ -380,6 +400,7 @@ class _StatsGrid extends StatelessWidget {
           icon: Icons.warning_amber_rounded,
           value: '${state.remainingCount}',
           valueColor: AppColors.coralRed,
+          pulseGeneration: state.remainingPulseGeneration,
         ),
         StatCard(
           label: l10n.btcLive,

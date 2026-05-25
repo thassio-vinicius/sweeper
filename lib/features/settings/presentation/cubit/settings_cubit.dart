@@ -12,13 +12,13 @@ class SettingsState extends Equatable {
   GameConfig toGameConfig() {
     final bombCount = switch (gridSize) {
       8 => 8,
-      12 => 10,
+      12 => 12,
       _ => 10,
     };
     return GameConfig(
       gridSize: gridSize,
       initialBombCount: bombCount,
-      maxBombs: 10,
+      maxBombs: bombCount + 5,
       emptyCellBuffer: gridSize,
     );
   }
