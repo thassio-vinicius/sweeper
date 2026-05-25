@@ -73,6 +73,37 @@ class AppLocalizationsPt extends AppLocalizations {
   String get signOut => 'Sair';
 
   @override
+  String get account => 'Conta';
+
+  @override
+  String get playAsGuest => 'Jogar como convidado';
+
+  @override
+  String get guestModeTitle => 'Modo convidado';
+
+  @override
+  String get guestModeHint => 'Jogando sem entrar na conta.';
+
+  @override
+  String get endGuestSession => 'Encerrar sessão de convidado';
+
+  @override
+  String get loginFeatureBtc =>
+      'O preço do BTC ao vivo alimenta o tabuleiro em tempo real';
+
+  @override
+  String get loginFeatureMagic =>
+      'Bombas mágicas disparam quando o BTC termina em \$0 ou \$5';
+
+  @override
+  String get loginFeatureBlast =>
+      'Bombas ocultas detonam automaticamente a cada 10 segundos';
+
+  @override
+  String get authUnavailable =>
+      'Login indisponível. Verifique a configuração do Firebase.';
+
+  @override
   String get settings => 'Configurações';
 
   @override

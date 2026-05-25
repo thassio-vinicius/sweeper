@@ -4,7 +4,10 @@ import 'package:go_router/go_router.dart';
 import 'package:sweeper/core/l10n/app_localizations.dart';
 import 'package:sweeper/core/theme/app_colors.dart';
 import 'package:sweeper/core/theme/app_spacing.dart';
+import 'package:sweeper/core/widgets/app_buttons.dart';
 import 'package:sweeper/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:sweeper/features/auth/presentation/widgets/auth_profile_section.dart';
+import 'package:sweeper/features/auth/presentation/widgets/guest_session_section.dart';
 import 'package:sweeper/features/game/presentation/cubit/game_cubit.dart';
 import 'package:sweeper/features/game/presentation/cubit/game_state.dart';
 import 'package:sweeper/features/game/presentation/widgets/board_grid.dart';
@@ -166,6 +169,7 @@ class _GamePageState extends State<GamePage> {
                                     onPressed: cubit.resume,
                                     icon: const Icon(Icons.play_arrow),
                                     label: Text(l10n.resume),
+                                    style: AppButtons.filledCyan,
                                   ),
                                 ],
                               ),
@@ -255,47 +259,39 @@ class _GamePageState extends State<GamePage> {
                       if (!auth.isAvailable) {
                         return const SizedBox.shrink();
                       }
-                      if (auth.user != null) {
-                        return ListTile(
-                          leading: CircleAvatar(
-                            backgroundImage: auth.user!.photoUrl != null
-                                ? NetworkImage(auth.user!.photoUrl!)
-                                : null,
-                            child: auth.user!.photoUrl == null
-                                ? const Icon(Icons.person)
-                                : null,
-                          ),
-                          title: Text(
-                            auth.user!.displayName ??
-                                auth.user!.email ??
-                                '',
-                          ),
-                          trailing: TextButton(
-                            onPressed: () =>
-                                context.read<AuthCubit>().signOut(),
-                            child: Text(l10n.signOut),
-                          ),
-                        );
-                      }
-                      return SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton.icon(
-                          onPressed: auth.isLoading
+                      if (auth.isGuest) {
+                        return GuestSessionSection(
+                          isLoading: auth.isLoading,
+                          isEndingSession: auth.isSigningOut,
+                          onSignIn: auth.isLoading
                               ? null
                               : () => context
                                   .read<AuthCubit>()
                                   .signInWithGoogle(),
-                          icon: auth.isLoading
-                              ? const SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : const Icon(Icons.login),
-                          label: Text(l10n.signInWithGoogle),
-                        ),
+                          onEndGuestSession: auth.isSigningOut
+                              ? null
+                              : () async {
+                                  await context.read<GameCubit>().stopGame();
+                                  if (!context.mounted) return;
+                                  await context.read<AuthCubit>().signOut();
+                                  if (ctx.mounted) Navigator.pop(ctx);
+                                },
+                        );
+                      }
+                      if (auth.user == null) {
+                        return const SizedBox.shrink();
+                      }
+                      return AuthProfileSection(
+                        user: auth.user!,
+                        isSigningOut: auth.isSigningOut,
+                        onSignOut: auth.isSigningOut
+                            ? null
+                            : () async {
+                                await context.read<GameCubit>().stopGame();
+                                if (!context.mounted) return;
+                                await context.read<AuthCubit>().signOut();
+                                if (ctx.mounted) Navigator.pop(ctx);
+                              },
                       );
                     },
                   ),

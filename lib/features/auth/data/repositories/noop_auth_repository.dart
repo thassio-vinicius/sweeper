@@ -12,6 +12,12 @@ class NoOpAuthRepository implements AuthRepository {
   AuthUser? get currentUser => null;
 
   @override
+  Future<void> waitForInitialAuthState() async {}
+
+  @override
+  Future<String?> getIdToken({bool forceRefresh = false}) async => null;
+
+  @override
   Future<AuthUser> signInWithGoogle() async {
     throw UnsupportedError('Firebase is not configured');
   }

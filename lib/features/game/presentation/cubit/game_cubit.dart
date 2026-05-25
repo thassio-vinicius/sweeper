@@ -344,6 +344,14 @@ class GameCubit extends Cubit<GameState> {
     await _startBtcStream();
   }
 
+  Future<void> stopGame() async {
+    await _disposeSubscriptions();
+    await _btcPriceRepository.disconnect();
+    _engine = null;
+    _statusBeforePause = null;
+    emit(const GameState());
+  }
+
   Future<void> _disposeSubscriptions() async {
     _stopGameLoop();
     await _btcSubscription?.cancel();

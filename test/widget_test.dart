@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:sweeper/core/l10n/app_localizations.dart';
 import 'package:sweeper/core/utils/clock.dart';
+import 'package:sweeper/core/auth/auth_session.dart';
+import 'package:sweeper/core/config/app_access_config.dart';
 import 'package:sweeper/features/auth/domain/repositories/auth_repository.dart';
 import 'package:sweeper/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sweeper/features/game/domain/entities/game_config.dart';
@@ -36,6 +38,9 @@ void main() {
     when(() => authRepo.authStateChanges).thenAnswer((_) => const Stream.empty());
     when(() => authRepo.currentUser).thenReturn(null);
     when(() => authRepo.isAvailable).thenReturn(false);
+    when(() => authRepo.waitForInitialAuthState()).thenAnswer((_) async {});
+    when(() => authRepo.getIdToken(forceRefresh: any(named: 'forceRefresh')))
+        .thenAnswer((_) async => null);
   });
 
   Widget buildApp(Widget child) {
@@ -57,7 +62,15 @@ void main() {
           ),
           BlocProvider<SettingsCubit>(create: (_) => SettingsCubit()),
           BlocProvider<AuthCubit>(
-            create: (_) => AuthCubit(authRepo),
+            create: (_) => AuthCubit(
+              authRepo,
+              AuthSession(
+                authRepository: authRepo,
+                accessConfig: const AppAccessConfig(
+                  androidGuestModeEnabled: false,
+                ),
+              ),
+            ),
           ),
         ],
         child: child,

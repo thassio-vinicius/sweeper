@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sweeper/core/theme/app_colors.dart';
+import 'package:sweeper/core/widgets/app_buttons.dart';
 
 abstract final class AppTheme {
   static ThemeData get dark {
@@ -43,6 +44,8 @@ abstract final class AppTheme {
           color: AppColors.springGreen,
         ),
       ),
+      filledButtonTheme: FilledButtonThemeData(style: AppButtons.filledCyan),
+      outlinedButtonTheme: OutlinedButtonThemeData(style: AppButtons.outlined),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,

@@ -73,6 +73,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signOut => 'Sign Out';
 
   @override
+  String get account => 'Account';
+
+  @override
+  String get playAsGuest => 'Play as guest';
+
+  @override
+  String get guestModeTitle => 'Guest mode';
+
+  @override
+  String get guestModeHint => 'Playing without signing in.';
+
+  @override
+  String get endGuestSession => 'End guest session';
+
+  @override
+  String get loginFeatureBtc => 'Live BTC price feeds the board in real time';
+
+  @override
+  String get loginFeatureMagic =>
+      'Magic bombs trigger when BTC lands on \$0 or \$5';
+
+  @override
+  String get loginFeatureBlast => 'Hidden bombs auto-detonate every 10 seconds';
+
+  @override
+  String get authUnavailable =>
+      'Sign-in is unavailable. Check your Firebase configuration.';
+
+  @override
   String get settings => 'Settings';
 
   @override

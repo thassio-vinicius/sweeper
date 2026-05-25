@@ -208,6 +208,60 @@ abstract class AppLocalizations {
   /// **'Sign Out'**
   String get signOut;
 
+  /// No description provided for @account.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get account;
+
+  /// No description provided for @playAsGuest.
+  ///
+  /// In en, this message translates to:
+  /// **'Play as guest'**
+  String get playAsGuest;
+
+  /// No description provided for @guestModeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest mode'**
+  String get guestModeTitle;
+
+  /// No description provided for @guestModeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Playing without signing in.'**
+  String get guestModeHint;
+
+  /// No description provided for @endGuestSession.
+  ///
+  /// In en, this message translates to:
+  /// **'End guest session'**
+  String get endGuestSession;
+
+  /// No description provided for @loginFeatureBtc.
+  ///
+  /// In en, this message translates to:
+  /// **'Live BTC price feeds the board in real time'**
+  String get loginFeatureBtc;
+
+  /// No description provided for @loginFeatureMagic.
+  ///
+  /// In en, this message translates to:
+  /// **'Magic bombs trigger when BTC lands on \$0 or \$5'**
+  String get loginFeatureMagic;
+
+  /// No description provided for @loginFeatureBlast.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden bombs auto-detonate every 10 seconds'**
+  String get loginFeatureBlast;
+
+  /// No description provided for @authUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-in is unavailable. Check your Firebase configuration.'**
+  String get authUnavailable;
+
   /// No description provided for @settings.
   ///
   /// In en, this message translates to:
