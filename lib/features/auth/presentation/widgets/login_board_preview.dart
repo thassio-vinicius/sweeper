@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sweeper/core/theme/app_colors.dart';
-import 'package:sweeper/core/theme/app_spacing.dart';
+import 'package:sweeper/core/theme/app_tokens.dart';
 import 'package:sweeper/features/game/presentation/widgets/board_grid.dart';
 
 /// Compact decorative board for the login hero card.
@@ -15,9 +14,10 @@ class LoginBoardPreview extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final maxWidth = constraints.maxWidth.clamp(0.0, 168.0);
-        const gap = 3.0;
-        final cellSize = (maxWidth - gap * (gridSize - 1)) / gridSize;
+        final maxWidth =
+            constraints.maxWidth.clamp(0.0, AppSizes.loginBoardMaxWidth);
+        final cellSize =
+            (maxWidth - AppSizes.loginBoardGap * (gridSize - 1)) / gridSize;
 
         return Center(
           child: SizedBox(
@@ -27,14 +27,14 @@ class LoginBoardPreview extends StatelessWidget {
               physics: const NeverScrollableScrollPhysics(),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: gridSize,
-                crossAxisSpacing: gap,
-                mainAxisSpacing: gap,
+                crossAxisSpacing: AppSizes.loginBoardGap,
+                mainAxisSpacing: AppSizes.loginBoardGap,
               ),
               itemCount: cells.length,
               itemBuilder: (context, index) {
                 return _PreviewTile(
                   cell: cells[index],
-                  pieceSize: cellSize * 0.62,
+                  pieceSize: cellSize * AppSizes.loginBoardPieceScale,
                 );
               },
             ),
@@ -106,20 +106,14 @@ class _PreviewTile extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.cellEmpty,
-        borderRadius: BorderRadius.circular(AppSpacing.cellRadius),
+        borderRadius: BorderRadius.circular(AppRadii.sm),
         border: Border.all(
           color: cell == _PreviewCell.magic
-              ? AppColors.sun.withValues(alpha: 0.8)
+              ? AppColors.sun.withValues(alpha: AppOpacity.magicCellBorder)
               : AppColors.cellBorder,
         ),
-        boxShadow: cell == _PreviewCell.magic
-            ? [
-                BoxShadow(
-                  color: AppColors.sun.withValues(alpha: 0.35),
-                  blurRadius: 10,
-                ),
-              ]
-            : null,
+        boxShadow:
+            cell == _PreviewCell.magic ? AppShadows.magicCell : null,
       ),
       child: Center(
         child: switch (cell) {

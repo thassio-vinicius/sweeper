@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:sweeper/core/l10n/app_localizations.dart';
-import 'package:sweeper/core/theme/app_spacing.dart';
+import 'package:sweeper/core/theme/app_tokens.dart';
 import 'package:sweeper/core/widgets/google_logo.dart';
 
-/// Standard white Google sign-in button with the multi-color G logo.
+/// Standard white Google sign-in button with the official logo asset.
 class GoogleSignInButton extends StatelessWidget {
   const GoogleSignInButton({
     super.key,
@@ -14,10 +14,6 @@ class GoogleSignInButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final bool isLoading;
 
-  static const _background = Color(0xFFFFFFFF);
-  static const _foreground = Color(0xFF1F1F1F);
-  static const _border = Color(0xFF747775);
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -27,20 +23,17 @@ class GoogleSignInButton extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: enabled ? onPressed : null,
-        borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+        borderRadius: BorderRadius.circular(AppRadii.md),
         child: Ink(
-          height: 52,
+          height: AppSizes.buttonHeightLg,
           decoration: BoxDecoration(
-            color: enabled ? _background : _background.withValues(alpha: 0.72),
-            borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-            border: Border.all(color: _border),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.18),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
+            color: enabled
+                ? AppColors.googleSignInBackground
+                : AppColors.googleSignInBackground
+                    .withValues(alpha: AppOpacity.disabled),
+            borderRadius: BorderRadius.circular(AppRadii.md),
+            border: Border.all(color: AppColors.googleSignInBorder),
+            boxShadow: AppShadows.googleSignIn(),
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
@@ -48,26 +41,21 @@ class GoogleSignInButton extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (isLoading)
-                  const SizedBox(
-                    width: 20,
-                    height: 20,
+                  SizedBox(
+                    width: AppSizes.iconLg,
+                    height: AppSizes.iconLg,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: _foreground,
+                      color: AppColors.googleSignInForeground
+                          .withValues(alpha: AppOpacity.disabled),
                     ),
                   )
                 else
-                  const GoogleLogo(size: 20),
+                  const GoogleLogo(),
                 const SizedBox(width: AppSpacing.md),
                 Text(
                   l10n.signInWithGoogle,
-                  style: const TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: _foreground,
-                    letterSpacing: 0.1,
-                  ),
+                  style: AppTypography.googleSignInLabel,
                 ),
               ],
             ),

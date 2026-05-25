@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sweeper/core/theme/app_colors.dart';
-import 'package:sweeper/core/theme/app_spacing.dart';
+import 'package:sweeper/core/theme/app_tokens.dart';
 
 /// Surface card matching in-game HUD stat tiles.
 class GameSurfaceCard extends StatelessWidget {
@@ -9,11 +8,13 @@ class GameSurfaceCard extends StatelessWidget {
     required this.child,
     this.padding = const EdgeInsets.all(AppSpacing.lg),
     this.accentColor,
+    this.surfaceOpacity = AppOpacity.surfaceMedium,
   });
 
   final Widget child;
   final EdgeInsetsGeometry padding;
   final Color? accentColor;
+  final double surfaceOpacity;
 
   @override
   Widget build(BuildContext context) {
@@ -23,16 +24,10 @@ class GameSurfaceCard extends StatelessWidget {
       width: double.infinity,
       padding: padding,
       decoration: BoxDecoration(
-        color: AppColors.surface.withValues(alpha: 0.85),
-        borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+        color: AppColors.surface.withValues(alpha: surfaceOpacity),
+        borderRadius: BorderRadius.circular(AppRadii.md),
         border: Border.all(color: AppColors.surfaceBorder),
-        boxShadow: [
-          BoxShadow(
-            color: glow.withValues(alpha: 0.12),
-            blurRadius: 24,
-            spreadRadius: -4,
-          ),
-        ],
+        boxShadow: AppShadows.surfaceCard(accent: glow),
       ),
       child: child,
     );

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sweeper/core/l10n/app_localizations.dart';
-import 'package:sweeper/core/theme/app_colors.dart';
-import 'package:sweeper/core/theme/app_spacing.dart';
+import 'package:sweeper/core/theme/app_tokens.dart';
 import 'package:sweeper/core/widgets/app_buttons.dart';
 import 'package:sweeper/core/widgets/game_surface_card.dart';
 import 'package:sweeper/features/auth/presentation/widgets/google_sign_in_button.dart';
@@ -28,10 +27,7 @@ class GuestSessionSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          l10n.account,
-          style: theme.textTheme.titleMedium,
-        ),
+        Text(l10n.account, style: theme.textTheme.titleMedium),
         const SizedBox(height: AppSpacing.sm),
         GameSurfaceCard(
           accentColor: AppColors.sun,
@@ -41,19 +37,21 @@ class GuestSessionSection extends StatelessWidget {
               Row(
                 children: [
                   Container(
-                    width: 40,
-                    height: 40,
+                    width: AppSizes.avatarMd,
+                    height: AppSizes.avatarMd,
                     decoration: BoxDecoration(
-                      color: AppColors.sun.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(AppSpacing.cellRadius),
+                      color: AppColors.sun
+                          .withValues(alpha: AppOpacity.accentTintSoft),
+                      borderRadius: BorderRadius.circular(AppRadii.sm),
                       border: Border.all(
-                        color: AppColors.sun.withValues(alpha: 0.35),
+                        color: AppColors.sun
+                            .withValues(alpha: AppOpacity.magicCellGlow),
                       ),
                     ),
                     child: const Icon(
                       Icons.person_outline,
                       color: AppColors.sun,
-                      size: 20,
+                      size: AppSizes.iconLg,
                     ),
                   ),
                   const SizedBox(width: AppSpacing.md),
@@ -65,7 +63,7 @@ class GuestSessionSection extends StatelessWidget {
                           l10n.guestModeTitle,
                           style: theme.textTheme.labelLarge?.copyWith(
                             color: AppColors.textPrimary,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: AppTypography.fontWeightSemibold,
                           ),
                         ),
                         Text(

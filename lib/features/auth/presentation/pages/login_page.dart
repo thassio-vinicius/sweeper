@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sweeper/core/l10n/app_localizations.dart';
-import 'package:sweeper/core/theme/app_colors.dart';
-import 'package:sweeper/core/theme/app_spacing.dart';
+import 'package:sweeper/core/theme/app_tokens.dart';
 import 'package:sweeper/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sweeper/features/auth/presentation/widgets/google_sign_in_button.dart';
 import 'package:sweeper/features/auth/presentation/widgets/login_board_preview.dart';
@@ -112,17 +111,17 @@ class _LoginBackdrop extends StatelessWidget {
         Positioned(
           top: -80,
           right: -60,
-          child: _GlowOrb(color: AppColors.cyan, size: 220),
+          child: _GlowOrb(color: AppColors.cyan, size: AppSizes.glowOrbLg),
         ),
         Positioned(
           bottom: 80,
           left: -70,
-          child: _GlowOrb(color: AppColors.coralRed, size: 180),
+          child: _GlowOrb(color: AppColors.coralRed, size: AppSizes.glowOrbMd),
         ),
         Positioned(
           bottom: -20,
           right: 20,
-          child: _GlowOrb(color: AppColors.sun, size: 140),
+          child: _GlowOrb(color: AppColors.sun, size: AppSizes.glowOrbSm),
         ),
       ],
     );
@@ -142,12 +141,7 @@ class _GlowOrb extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        gradient: RadialGradient(
-          colors: [
-            color.withValues(alpha: 0.22),
-            color.withValues(alpha: 0.0),
-          ],
-        ),
+        gradient: AppGradients.backdropOrb(color),
       ),
     );
   }

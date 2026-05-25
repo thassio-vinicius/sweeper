@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sweeper/core/l10n/app_localizations.dart';
-import 'package:sweeper/core/theme/app_colors.dart';
-import 'package:sweeper/core/theme/app_spacing.dart';
+import 'package:sweeper/core/theme/app_tokens.dart';
 import 'package:sweeper/core/widgets/app_buttons.dart';
 
 class GameTitleHero extends StatelessWidget {
@@ -25,67 +24,36 @@ class GameTitleHero extends StatelessWidget {
         AppSpacing.md,
       ),
       decoration: BoxDecoration(
-        color: AppColors.surface.withValues(alpha: 0.88),
-        borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+        color: AppColors.surface.withValues(alpha: AppOpacity.surfaceStrong),
+        borderRadius: BorderRadius.circular(AppRadii.md),
         border: Border.all(color: AppColors.surfaceBorder),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.cyan.withValues(alpha: 0.14),
-            blurRadius: 32,
-            spreadRadius: -6,
-          ),
-          BoxShadow(
-            color: AppColors.coralRed.withValues(alpha: 0.08),
-            blurRadius: 24,
-            offset: const Offset(0, 12),
-          ),
-        ],
+        boxShadow: AppShadows.loginHeroPrimary,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _TitleGlowIcon(),
+          const _TitleGlowIcon(),
           const SizedBox(height: AppSpacing.sm),
           ShaderMask(
             blendMode: BlendMode.srcIn,
-            shaderCallback: (bounds) => const LinearGradient(
-              colors: [AppColors.cyan, AppColors.springGreen],
-            ).createShader(bounds),
+            shaderCallback: (bounds) =>
+                AppGradients.loginEyebrow.createShader(bounds),
             child: Text(
               l10n.reversed,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontSize: 11,
-                    letterSpacing: 4.8,
-                    color: Colors.white,
-                  ),
+              style: AppTypography.loginEyebrow,
             ),
           ),
           const SizedBox(height: AppSpacing.xs),
           ShaderMask(
             blendMode: BlendMode.srcIn,
-            shaderCallback: (bounds) => const LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-              colors: [
-                AppColors.textPrimary,
-                AppColors.cyan,
-                AppColors.springGreen,
-              ],
-            ).createShader(bounds),
+            shaderCallback: (bounds) =>
+                AppGradients.loginTitle.createShader(bounds),
             child: Text(
               l10n.minesweeper,
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    fontSize: 28,
-                    height: 1,
-                    color: Colors.white,
-                    shadows: [
-                      Shadow(
-                        color: AppColors.cyan.withValues(alpha: 0.45),
-                        blurRadius: 18,
-                      ),
-                    ],
-                  ),
+              style: AppTypography.loginTitle.copyWith(
+                shadows: AppShadows.titleTextGlow,
+              ),
             ),
           ),
           const SizedBox(height: AppSpacing.md),
@@ -97,39 +65,33 @@ class GameTitleHero extends StatelessWidget {
 }
 
 class _TitleGlowIcon extends StatelessWidget {
+  const _TitleGlowIcon();
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 44,
-      height: 44,
+      width: AppSizes.titleGlowOuter,
+      height: AppSizes.titleGlowOuter,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        gradient: RadialGradient(
-          colors: [
-            AppColors.coralRed.withValues(alpha: 0.35),
-            AppColors.background.withValues(alpha: 0.0),
-          ],
-        ),
+        gradient: AppGradients.titleIconGlow(AppColors.coralRed),
       ),
       child: Center(
         child: Container(
-          width: 34,
-          height: 34,
+          width: AppSizes.titleGlowInner,
+          height: AppSizes.titleGlowInner,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: AppColors.surface,
-            border: Border.all(color: AppColors.coralRed.withValues(alpha: 0.55)),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.coralRed.withValues(alpha: 0.35),
-                blurRadius: 16,
-              ),
-            ],
+            border: Border.all(
+              color: AppColors.coralRed.withValues(alpha: AppOpacity.accentBorder),
+            ),
+            boxShadow: AppShadows.titleIcon(accent: AppColors.coralRed),
           ),
-          child: const Icon(
+          child: Icon(
             Icons.local_fire_department,
             color: AppColors.coralRed,
-            size: 18,
+            size: AppSizes.iconMd,
           ),
         ),
       ),
@@ -151,8 +113,8 @@ class LoginFeatureGuide extends StatelessWidget {
         vertical: AppSpacing.sm,
       ),
       decoration: BoxDecoration(
-        color: AppColors.surface.withValues(alpha: 0.82),
-        borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+        color: AppColors.surface.withValues(alpha: AppOpacity.surfaceSoft),
+        borderRadius: BorderRadius.circular(AppRadii.md),
         border: Border.all(color: AppColors.surfaceBorder),
       ),
       child: Column(
@@ -163,13 +125,13 @@ class LoginFeatureGuide extends StatelessWidget {
             label: l10n.loginFeatureBtc,
             color: AppColors.sun,
           ),
-          Divider(height: 1, color: AppColors.surfaceBorder),
+          const Divider(height: 1, color: AppColors.surfaceBorder),
           _FeatureRow(
             icon: Icons.auto_awesome,
             label: l10n.loginFeatureMagic,
             color: AppColors.cyan,
           ),
-          Divider(height: 1, color: AppColors.surfaceBorder),
+          const Divider(height: 1, color: AppColors.surfaceBorder),
           _FeatureRow(
             icon: Icons.timer_outlined,
             label: l10n.loginFeatureBlast,
@@ -200,24 +162,22 @@ class _FeatureRow extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
-            width: 28,
-            height: 28,
+            width: AppSizes.featureIconBox,
+            height: AppSizes.featureIconBox,
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(AppSpacing.cellRadius),
-              border: Border.all(color: color.withValues(alpha: 0.25)),
+              color: color.withValues(alpha: AppOpacity.accentTintSoft),
+              borderRadius: BorderRadius.circular(AppRadii.sm),
+              border: Border.all(
+                color: color.withValues(alpha: AppOpacity.accentBorderMuted),
+              ),
             ),
-            child: Icon(icon, size: 15, color: color),
+            child: Icon(icon, size: AppSizes.iconSm, color: color),
           ),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Text(
               label,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textPrimary,
-                    fontSize: 11,
-                    height: 1.3,
-                  ),
+              style: AppTypography.loginFeature,
             ),
           ),
         ],

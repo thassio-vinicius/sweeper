@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sweeper/core/theme/app_colors.dart';
-import 'package:sweeper/core/theme/app_spacing.dart';
+import 'package:sweeper/core/theme/app_tokens.dart';
 import 'package:sweeper/features/game/domain/entities/game_entities.dart';
 
 class StatCard extends StatelessWidget {
@@ -31,19 +30,19 @@ class StatCard extends StatelessWidget {
         vertical: AppSpacing.sm,
       ),
       decoration: BoxDecoration(
-        color: AppColors.surface.withValues(alpha: 0.7),
-        borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+        color: AppColors.surface.withValues(alpha: AppOpacity.surfaceHud),
+        borderRadius: BorderRadius.circular(AppRadii.md),
         border: Border.all(color: AppColors.surfaceBorder),
         boxShadow: [
           BoxShadow(
-            color: valueColor.withValues(alpha: 0.08),
+            color: valueColor.withValues(alpha: AppOpacity.accentBorderSubtle),
             blurRadius: 12,
           ),
         ],
       ),
       child: Row(
         children: [
-          Icon(icon, size: 14, color: valueColor),
+          Icon(icon, size: AppSizes.iconXs, color: valueColor),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Column(
@@ -55,10 +54,7 @@ class StatCard extends StatelessWidget {
                   label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontSize: 9,
-                        height: 1.1,
-                      ),
+                  style: AppTypography.statLabel,
                 ),
                 Row(
                   children: [
@@ -71,11 +67,10 @@ class StatCard extends StatelessWidget {
                       ),
                     ),
                     if (subValue != null) ...[
-                      const SizedBox(width: 4),
+                      const SizedBox(width: AppSpacing.xs),
                       Text(
                         subValue!,
-                        style: TextStyle(
-                          fontSize: 10,
+                        style: AppTypography.statSubValue.copyWith(
                           color: subValueColor ?? AppColors.springGreen,
                         ),
                       ),
@@ -156,14 +151,12 @@ class _PulsingValueState extends State<_PulsingValue>
         widget.value,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-          fontSize: 14,
-          height: 1.1,
-          fontWeight: FontWeight.w700,
+        style: AppTypography.statValue.copyWith(
+          height: AppTypography.lineHeightSnug,
           color: widget.valueColor,
           shadows: [
             Shadow(
-              color: widget.valueColor.withValues(alpha: 0.5),
+              color: widget.valueColor.withValues(alpha: AppOpacity.accentBorderSoft),
               blurRadius: 8 * _scale.value,
             ),
           ],

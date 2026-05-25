@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sweeper/core/theme/app_colors.dart';
-import 'package:sweeper/core/theme/app_spacing.dart';
+import 'package:sweeper/core/theme/app_tokens.dart';
 
 abstract final class AppButtons {
   static ButtonStyle get filledCyan => FilledButton.styleFrom(
@@ -10,11 +9,7 @@ abstract final class AppButtons {
           vertical: AppSpacing.lg,
           horizontal: AppSpacing.xl,
         ),
-        textStyle: const TextStyle(
-          fontFamily: 'Inter',
-          fontSize: 16,
-          fontWeight: FontWeight.w700,
-        ),
+        textStyle: AppTypography.buttonPrimary,
       );
 
   static ButtonStyle get outlined => OutlinedButton.styleFrom(
@@ -25,25 +20,19 @@ abstract final class AppButtons {
           vertical: AppSpacing.lg,
           horizontal: AppSpacing.xl,
         ),
-        textStyle: const TextStyle(
-          fontFamily: 'Inter',
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-        ),
+        textStyle: AppTypography.buttonSecondary,
       );
 
   static ButtonStyle get signOut => OutlinedButton.styleFrom(
         backgroundColor: AppColors.surface,
         foregroundColor: AppColors.coralRed,
-        side: BorderSide(color: AppColors.coralRed.withValues(alpha: 0.5)),
+        side: BorderSide(
+          color: AppColors.coralRed.withValues(alpha: AppOpacity.accentBorderSoft),
+        ),
         padding: const EdgeInsets.symmetric(
           vertical: AppSpacing.md,
           horizontal: AppSpacing.xl,
         ),
-        textStyle: const TextStyle(
-          fontFamily: 'Inter',
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-        ),
+        textStyle: AppTypography.buttonDestructive,
       );
 }

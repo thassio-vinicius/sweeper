@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sweeper/core/l10n/app_localizations.dart';
-import 'package:sweeper/core/theme/app_colors.dart';
-import 'package:sweeper/core/theme/app_spacing.dart';
+import 'package:sweeper/core/theme/app_tokens.dart';
 import 'package:sweeper/core/widgets/app_buttons.dart';
 import 'package:sweeper/core/widgets/game_surface_card.dart';
 import 'package:sweeper/features/auth/domain/repositories/auth_repository.dart';
@@ -26,10 +25,7 @@ class AuthProfileSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          l10n.account,
-          style: theme.textTheme.titleMedium,
-        ),
+        Text(l10n.account, style: theme.textTheme.titleMedium),
         const SizedBox(height: AppSpacing.sm),
         GameSurfaceCard(
           accentColor: AppColors.springGreen,
@@ -38,13 +34,16 @@ class AuthProfileSection extends StatelessWidget {
               Row(
                 children: [
                   CircleAvatar(
-                    radius: 24,
+                    radius: AppSizes.avatarSm / 2 + AppSpacing.xs,
                     backgroundColor: AppColors.background,
                     backgroundImage: user.photoUrl != null
                         ? NetworkImage(user.photoUrl!)
                         : null,
                     child: user.photoUrl == null
-                        ? const Icon(Icons.person, color: AppColors.textSecondary)
+                        ? const Icon(
+                            Icons.person,
+                            color: AppColors.textSecondary,
+                          )
                         : null,
                   ),
                   const SizedBox(width: AppSpacing.md),
@@ -56,7 +55,7 @@ class AuthProfileSection extends StatelessWidget {
                           user.displayName ?? user.email ?? '',
                           style: theme.textTheme.labelLarge?.copyWith(
                             color: AppColors.textPrimary,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: AppTypography.fontWeightSemibold,
                           ),
                         ),
                         if (user.displayName != null && user.email != null)
@@ -77,11 +76,11 @@ class AuthProfileSection extends StatelessWidget {
                   style: AppButtons.signOut,
                   icon: isSigningOut
                       ? const SizedBox(
-                          width: 16,
-                          height: 16,
+                          width: AppSizes.iconLg - 4,
+                          height: AppSizes.iconLg - 4,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Icon(Icons.logout, size: 18),
+                      : Icon(Icons.logout, size: AppSizes.iconMd),
                   label: Text(l10n.signOut),
                 ),
               ),
