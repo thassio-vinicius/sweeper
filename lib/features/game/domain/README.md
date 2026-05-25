@@ -9,7 +9,7 @@ Pure Dart game rules — no Flutter imports.
 | `initialize()` | Places hidden bombs and pre-placed pieces on non-bomb cells |
 | `movePiece(from, to)` | Rearranges a piece; discovers bomb if hidden under target |
 | `onTimerTick()` | Explodes one random hidden bomb |
-| `onBtcPriceUpdate(price)` | Adds magic bomb when integer price % 5 == 0 |
+| `onBtcPriceUpdate(price)` | Adds magic bomb when whole-dollar price lands on a value ending in 0 or 5 |
 | `updateCountdown(seconds)` | Updates next-blast countdown display |
 | `restart(config?)` | Re-initializes with optional new config |
 

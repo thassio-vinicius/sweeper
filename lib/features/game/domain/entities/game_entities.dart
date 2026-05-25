@@ -151,11 +151,11 @@ class BtcPrice extends Equatable {
 
   bool get isDivisibleByFive => wholeDollarPrice % 5 == 0;
 
-  /// True when the displayed whole-dollar price just changed to a new multiple of 5.
-  static bool landedOnNewDivisibleWhole(int? previousWhole, int currentWhole) {
-    if (currentWhole % 5 != 0) return false;
-    if (previousWhole == null) return false;
-    return previousWhole != currentWhole;
+  /// Whether [currentWhole] just landed on a whole dollar ending in 0 or 5.
+  static int? landedOnDivisibleWhole(int? previousWhole, int currentWhole) {
+    if (previousWhole == null || previousWhole == currentWhole) return null;
+    if (currentWhole % 5 != 0) return null;
+    return currentWhole;
   }
 
   @override

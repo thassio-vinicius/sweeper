@@ -18,7 +18,6 @@ class SettingsState extends Equatable {
     return GameConfig(
       gridSize: gridSize,
       initialBombCount: bombCount,
-      maxBombs: bombCount + 5,
       emptyCellBuffer: gridSize,
     );
   }

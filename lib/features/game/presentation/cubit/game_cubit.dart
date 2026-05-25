@@ -296,12 +296,10 @@ class GameCubit extends Cubit<GameState> {
     }
 
     if (state.status == GameStatus.paused) {
-      final observed = _engine!.observeBtcPrice(price);
       emit(
         state.copyWith(
           btcPrice: price,
           btcPriceDirection: direction,
-          snapshot: observed.snapshot,
           clearError: true,
         ),
       );

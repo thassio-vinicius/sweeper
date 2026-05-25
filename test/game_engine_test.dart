@@ -6,16 +6,21 @@ import 'package:sweeper/features/game/domain/entities/game_entities.dart';
 import 'package:sweeper/features/game/domain/entities/game_events.dart';
 import 'package:sweeper/features/game/domain/services/game_engine.dart';
 
+void _openMagicBombSlot(GameEngine engine) {
+  engine.onTimerTick();
+}
+
 void main() {
   group('BtcPrice', () {
-    test('landedOnNewDivisibleWhole detects new divisible whole-dollar ticks', () {
-      expect(BtcPrice.landedOnNewDivisibleWhole(null, 67455), isFalse);
-      expect(BtcPrice.landedOnNewDivisibleWhole(67455, 67455), isFalse);
-      expect(BtcPrice.landedOnNewDivisibleWhole(67454, 67455), isTrue);
-      expect(BtcPrice.landedOnNewDivisibleWhole(67450, 67455), isTrue);
-      expect(BtcPrice.landedOnNewDivisibleWhole(67455, 67456), isFalse);
-      expect(BtcPrice.landedOnNewDivisibleWhole(67455, 67460), isTrue);
-      expect(BtcPrice.landedOnNewDivisibleWhole(97660, 97665), isTrue);
+    test('landedOnDivisibleWhole detects landing on whole dollars ending in 0 or 5', () {
+      expect(BtcPrice.landedOnDivisibleWhole(null, 67455), isNull);
+      expect(BtcPrice.landedOnDivisibleWhole(67455, 67455), isNull);
+      expect(BtcPrice.landedOnDivisibleWhole(67454, 67455), 67455);
+      expect(BtcPrice.landedOnDivisibleWhole(67450, 67455), 67455);
+      expect(BtcPrice.landedOnDivisibleWhole(67455, 67456), isNull);
+      expect(BtcPrice.landedOnDivisibleWhole(67455, 67460), 67460);
+      expect(BtcPrice.landedOnDivisibleWhole(97660, 97665), 97665);
+      expect(BtcPrice.landedOnDivisibleWhole(97662, 97668), isNull);
     });
 
     test('wholeDollars matches UI rounding', () {
@@ -29,7 +34,6 @@ void main() {
     late GameEngine engine;
     const config = GameConfig(
       gridSize: 10,
-      maxBombs: 15,
       initialBombCount: 10,
       emptyCellBuffer: 10,
     );
@@ -162,8 +166,9 @@ void main() {
       expect(BtcPrice.wholeDollars(77665.6) % 5, isNot(0));
     });
 
-    test('magic bomb added when displayed price crosses into divisible by 5', () {
+    test('magic bomb added when displayed price lands on divisible by 5', () {
       engine.initialize();
+      _openMagicBombSlot(engine);
       engine.onBtcPriceUpdate(
         BtcPrice(priceUsd: 77664, receivedAt: DateTime.now()),
       );
@@ -177,8 +182,23 @@ void main() {
       expect(event.triggerWholeDollars % 5, 0);
     });
 
-    test('magic bomb added when BTC crosses into divisible by 5', () {
+    test('magic bomb not added when price jump skips divisible landing', () {
       engine.initialize();
+      _openMagicBombSlot(engine);
+      engine.onBtcPriceUpdate(
+        BtcPrice(priceUsd: 97662, receivedAt: DateTime.now()),
+      );
+      final result = engine.onBtcPriceUpdate(
+        BtcPrice(priceUsd: 97668, receivedAt: DateTime.now()),
+      );
+
+      expect(result.events, isEmpty);
+      expect(BtcPrice.wholeDollars(97668) % 5, isNot(0));
+    });
+
+    test('magic bomb added when BTC lands on divisible by 5', () {
+      engine.initialize();
+      _openMagicBombSlot(engine);
       final before = engine.snapshot.board.hiddenBombCount;
 
       engine.onBtcPriceUpdate(
@@ -193,8 +213,9 @@ void main() {
       expect(result.snapshot.lastMagicBombTriggerPrice, 67455);
     });
 
-    test('magic bomb added when jumping between divisible prices', () {
+    test('magic bomb added when landing on another divisible price', () {
       engine.initialize();
+      _openMagicBombSlot(engine);
       final before = engine.snapshot.board.hiddenBombCount;
 
       engine.onBtcPriceUpdate(
@@ -207,6 +228,44 @@ void main() {
       expect(result.events, contains(isA<MagicBombAddedEvent>()));
       expect(result.snapshot.board.hiddenBombCount, before + 1);
       expect(result.snapshot.lastMagicBombTriggerPrice, 67460);
+    });
+
+    test('magic bomb not added when remaining bombs at cap', () {
+      engine.initialize();
+      expect(engine.snapshot.board.hiddenBombCount, config.initialBombCount);
+
+      engine.onBtcPriceUpdate(
+        BtcPrice(priceUsd: 67454, receivedAt: DateTime.now()),
+      );
+      final result = engine.onBtcPriceUpdate(
+        BtcPrice(priceUsd: 67455, receivedAt: DateTime.now()),
+      );
+
+      expect(result.events, isEmpty);
+      expect(result.snapshot.board.hiddenBombCount, config.initialBombCount);
+    });
+
+    test('magic bomb cap follows initial bomb count for 8x8', () {
+      final smallEngine = GameEngine(
+        config: const GameConfig(
+          gridSize: 8,
+          initialBombCount: 8,
+          emptyCellBuffer: 8,
+        ),
+        random: Random(42),
+      );
+      smallEngine.initialize();
+      expect(smallEngine.snapshot.board.hiddenBombCount, 8);
+
+      smallEngine.onBtcPriceUpdate(
+        BtcPrice(priceUsd: 67454, receivedAt: DateTime.now()),
+      );
+      final blocked = smallEngine.onBtcPriceUpdate(
+        BtcPrice(priceUsd: 67455, receivedAt: DateTime.now()),
+      );
+
+      expect(blocked.events, isEmpty);
+      expect(blocked.snapshot.board.hiddenBombCount, 8);
     });
 
     test('magic bomb not added on first tick without prior price', () {
@@ -223,6 +282,7 @@ void main() {
 
     test('magic bomb dedupes same divisible integer', () {
       engine.initialize();
+      _openMagicBombSlot(engine);
       engine.onBtcPriceUpdate(
         BtcPrice(priceUsd: 67454, receivedAt: DateTime.now()),
       );
@@ -257,7 +317,6 @@ void main() {
     test('failed cap does not consume trigger price', () {
       const tightConfig = GameConfig(
         gridSize: 10,
-        maxBombs: 10,
         initialBombCount: 10,
         emptyCellBuffer: 10,
       );
@@ -334,7 +393,6 @@ void main() {
       engine = GameEngine(
         config: const GameConfig(
           gridSize: 4,
-          maxBombs: 2,
           initialBombCount: 2,
           emptyCellBuffer: 1,
         ),

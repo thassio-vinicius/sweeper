@@ -42,7 +42,7 @@ class GameEngine {
     }
     allPositions.shuffle(_random);
 
-    var bombCount = _config.initialBombCount.clamp(0, _config.maxBombs);
+    var bombCount = _config.initialBombCount;
     final bombPositions = allPositions.take(bombCount).toList();
 
     for (final pos in bombPositions) {
@@ -181,16 +181,6 @@ class GameEngine {
     return GameEngineResult(snapshot: _snapshot!);
   }
 
-  GameEngineResult observeBtcPrice(BtcPrice price) {
-    if (_snapshot == null) {
-      throw StateError('GameEngine not initialized.');
-    }
-    _snapshot = _snapshot!.copyWith(
-      lastSeenBtcIntegerPrice: price.wholeDollarPrice,
-    );
-    return GameEngineResult(snapshot: _snapshot!);
-  }
-
   GameEngineResult onBtcPriceUpdate(BtcPrice price) {
     if (_snapshot == null) {
       throw StateError('GameEngine not initialized.');
@@ -204,19 +194,16 @@ class GameEngine {
 
     _snapshot = _snapshot!.copyWith(lastSeenBtcIntegerPrice: newWhole);
 
-    if (!BtcPrice.landedOnNewDivisibleWhole(prevWhole, newWhole)) {
+    final triggerWhole = BtcPrice.landedOnDivisibleWhole(prevWhole, newWhole);
+    if (triggerWhole == null) {
       return GameEngineResult(snapshot: _snapshot!);
     }
 
-    if (_snapshot!.lastMagicBombTriggerPrice == newWhole) {
+    if (_snapshot!.lastMagicBombTriggerPrice == triggerWhole) {
       return GameEngineResult(snapshot: _snapshot!);
     }
 
-    // Exploded bombs no longer occupy the board — only hidden + discovered count.
-    final activeBombs = _snapshot!.board.hiddenBombCount +
-        _snapshot!.discoveredBombCount;
-
-    if (activeBombs >= _config.maxBombs) {
+    if (_snapshot!.board.hiddenBombCount >= _config.initialBombCount) {
       return GameEngineResult(snapshot: _snapshot!);
     }
 
@@ -233,11 +220,11 @@ class GameEngine {
 
     _snapshot = _snapshot!.copyWith(
       board: Board(cells: cells, gridSize: _config.gridSize),
-      lastMagicBombTriggerPrice: newWhole,
+      lastMagicBombTriggerPrice: triggerWhole,
     );
 
     return _finalize([
-      MagicBombAddedEvent(target.row, target.col, newWhole),
+      MagicBombAddedEvent(target.row, target.col, triggerWhole),
     ]);
   }
 
