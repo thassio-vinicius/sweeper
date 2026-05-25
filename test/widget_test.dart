@@ -1,30 +1,75 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:sweeper/core/l10n/app_localizations.dart';
+import 'package:sweeper/core/utils/clock.dart';
+import 'package:sweeper/features/auth/domain/repositories/auth_repository.dart';
+import 'package:sweeper/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:sweeper/features/game/domain/entities/game_config.dart';
+import 'package:sweeper/features/game/domain/repositories/btc_price_repository.dart';
+import 'package:sweeper/features/game/presentation/cubit/game_cubit.dart';
+import 'package:sweeper/features/game/presentation/pages/game_page.dart';
+import 'package:sweeper/features/settings/presentation/cubit/settings_cubit.dart';
 
-import 'package:sweeper/main.dart';
+class MockBtcPriceRepository extends Mock implements BtcPriceRepository {}
+
+class MockClock extends Mock implements Clock {}
+
+class MockAuthRepository extends Mock implements AuthRepository {}
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  late MockBtcPriceRepository btcRepo;
+  late MockClock clock;
+  late MockAuthRepository authRepo;
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  setUp(() {
+    btcRepo = MockBtcPriceRepository();
+    clock = MockClock();
+    authRepo = MockAuthRepository();
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+    when(() => btcRepo.watchPrice()).thenAnswer((_) => const Stream.empty());
+    when(() => btcRepo.connect()).thenAnswer((_) async {});
+    when(() => btcRepo.disconnect()).thenAnswer((_) async {});
+    when(() => clock.periodic(const Duration(seconds: 1)))
+        .thenAnswer((_) => const Stream.empty());
+    when(() => authRepo.authStateChanges).thenAnswer((_) => const Stream.empty());
+    when(() => authRepo.currentUser).thenReturn(null);
+    when(() => authRepo.isAvailable).thenReturn(false);
+  });
+
+  Widget buildApp(Widget child) {
+    return MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: MultiBlocProvider(
+        providers: [
+          BlocProvider<GameCubit>(
+            create: (_) => GameCubit(
+              btcPriceRepository: btcRepo,
+              clock: clock,
+              config: const GameConfig(
+                gridSize: 8,
+                initialBombCount: 5,
+                emptyCellBuffer: 5,
+              ),
+            ),
+          ),
+          BlocProvider<SettingsCubit>(create: (_) => SettingsCubit()),
+          BlocProvider<AuthCubit>(
+            create: (_) => AuthCubit(authRepo),
+          ),
+        ],
+        child: child,
+      ),
+    );
+  }
+
+  testWidgets('GamePage renders title', (tester) async {
+    await tester.pumpWidget(buildApp(const GamePage()));
     await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('Minesweeper'), findsOneWidget);
   });
 }
