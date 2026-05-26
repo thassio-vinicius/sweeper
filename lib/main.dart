@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:sweeper/app.dart';
 import 'package:sweeper/core/config/app_env.dart';
 import 'package:sweeper/core/di/injection.dart';
@@ -8,6 +9,7 @@ import 'package:sweeper_settings/sweeper_settings.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   await EasyLocalization.ensureInitialized();
   await AppEnv.load();
   await FirebaseBootstrap.initialize();

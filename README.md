@@ -97,15 +97,35 @@ sweeper/                          ← App shell (android/, ios/, lib/)
 └── pubspec.yaml
 ```
 
-### Layering (within `sweeper_game`)
+### Layering (feature packages)
 
-Feature-first **clean architecture**:
+Feature modules (`sweeper_auth`, `sweeper_settings`, `sweeper_game`) share the same **clean architecture** layout. Infrastructure packages (`sweeper_theme`, `sweeper_l10n`) are shared utilities without this split; the **app shell** only bootstraps the app (env, Firebase, DI, routing).
 
-| Layer | Responsibility | Examples |
-|-------|----------------|----------|
-| **Domain** | Pure Dart rules & models | `GameEngine`, `GameConfig`, entities, `BtcPriceRepository` interface |
-| **Data** | External I/O | Binance WebSocket, DTOs, local storage, repository implementations |
-| **Presentation** | UI + state | `GameCubit`, `GamePage`, widgets, theming, animations |
+```
+packages/<feature>/lib/
+├── domain/
+│   ├── entities/           # Value types — no Flutter imports
+│   ├── repositories/       # Abstract contracts
+│   └── services/           # Pure logic orchestrators (where needed)
+├── data/
+│   ├── datasources/        # Firebase, SharedPreferences, WebSocket, …
+│   ├── dtos/               # Wire / JSON shapes (where needed)
+│   └── repositories/       # Implements domain contracts
+└── presentation/
+    ├── cubit/              # UI state
+    ├── pages/              # Full screens
+    └── widgets/            # Composable UI
+```
+
+| Layer | Responsibility | Examples (across packages) |
+|-------|----------------|----------------------------|
+| **Domain** | Business rules, models, repository interfaces — **no I/O** | `GameEngine`, `UserSettings`, `AuthUser`, `AuthRepository`, `SettingsRepository` |
+| **Data** | Talks to the outside world; maps DTOs → domain types | `FirebaseAuthDataSource`, `SharedPreferencesSettingsDataSource`, `BinanceWebSocket`, `*RepositoryImpl` |
+| **Presentation** | Widgets + Cubits; drives UI from domain/data | `GameCubit` / `GamePage`, `AuthCubit` / `LoginPage`, `SettingsCubit` / settings sheet |
+
+Dependency rule: **presentation → domain ← data**. Presentation never imports datasources directly; the app shell registers concrete implementations in `get_it` (`lib/core/di/injection.dart`).
+
+Some cross-cutting code sits beside the three folders when it spans features — e.g. `sweeper_auth/session/` (guest/sign-in lifecycle) and `config/` (platform access flags).
 
 State management: **Cubits** (`flutter_bloc`) — registered in the widget tree via `MultiBlocProvider` in `app.dart`. Navigation: **go_router** with typed paths in `AppPaths` (`lib/core/router`). DI: **get_it** for singleton services/repos only.
 
