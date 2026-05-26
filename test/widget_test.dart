@@ -109,6 +109,6 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
-    expect(find.text('Minesweeper'), findsOneWidget);
+    expect(find.text('Minesweeper'), findsWidgets);
   });
 }

@@ -5,3 +5,4 @@ export 'widgets/app_buttons.dart';
 export 'widgets/game_surface_card.dart';
 export 'widgets/game_title_brand.dart';
 export 'widgets/google_logo.dart';
+export 'widgets/gradient_text.dart';

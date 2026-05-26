@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sweeper_theme/app_tokens.dart';
+import 'package:sweeper_theme/widgets/gradient_text.dart';
 
 enum GameTitleBrandSize { compact, hero }
 
@@ -43,24 +44,16 @@ class GameTitleBrand extends StatelessWidget {
       inner: _iconInner,
       glyphSize: _iconGlyph,
     );
-    final eyebrowText = ShaderMask(
-      blendMode: BlendMode.srcIn,
-      shaderCallback: (bounds) =>
-          AppGradients.gradientEyebrow.createShader(bounds),
-      child: Text(
-        eyebrow,
-        style: _eyebrowStyle,
-      ),
+    final eyebrowText = GradientText(
+      text: eyebrow,
+      style: _eyebrowStyle,
+      gradient: AppGradients.gradientEyebrow,
     );
-    final headlineText = ShaderMask(
-      blendMode: BlendMode.srcIn,
-      shaderCallback: (bounds) =>
-          AppGradients.gradientHeadline.createShader(bounds),
-      child: Text(
-        title,
-        textAlign: _isHero ? TextAlign.center : TextAlign.start,
-        style: _titleStyle,
-      ),
+    final headlineText = GradientText(
+      text: title,
+      textAlign: _isHero ? TextAlign.center : TextAlign.start,
+      style: _titleStyle,
+      gradient: AppGradients.gradientHeadline,
     );
 
     if (_isHero) {

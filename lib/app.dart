@@ -33,7 +33,7 @@ class SweeperApp extends StatelessWidget {
       ],
       child: LocaleSync(
         child: MaterialApp.router(
-          title: 'appTitle'.tr(),
+          onGenerateTitle: (context) => 'appTitle'.tr(),
           theme: AppTheme.dark,
           routerConfig: getIt<AppRouter>().router,
           localizationsDelegates: context.localizationDelegates,

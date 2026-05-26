@@ -10,6 +10,7 @@ import 'package:sweeper_l10n/sweeper_l10n.dart';
 import 'package:sweeper_settings/sweeper_settings.dart';
 import 'package:sweeper_theme/app_tokens.dart';
 import 'package:sweeper_theme/widgets/app_buttons.dart';
+import 'package:sweeper_theme/widgets/gradient_text.dart';
 
 class GameOverPage extends StatefulWidget {
   const GameOverPage({super.key, required this.discoveredCount});
@@ -70,16 +71,12 @@ class _GameOverPageState extends State<GameOverPage>
                   const SizedBox(height: AppSpacing.lg),
                   FadeTransition(
                     opacity: _titleFade,
-                    child: ShaderMask(
-                      blendMode: BlendMode.srcIn,
-                      shaderCallback: (bounds) =>
-                          AppGradients.gradientHeadline.createShader(bounds),
-                      child: Text(
-                        'gameOverTitle'.tr(),
-                        style: AppTypography.displayHeadline.copyWith(
-                          shadows: AppShadows.titleTextGlow,
-                        ),
+                    child: GradientText(
+                      text: 'gameOverTitle'.tr(),
+                      style: AppTypography.displayHeadline.copyWith(
+                        shadows: AppShadows.titleTextGlow,
                       ),
+                      gradient: AppGradients.gradientHeadline,
                     ),
                   ),
                   const Spacer(),
