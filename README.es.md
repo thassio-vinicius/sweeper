@@ -29,6 +29,14 @@ Usa Flutter 3.38.x o cualquier release que incluya Dart 3.10.4+. Si usas [FVM](h
 
 ## Inicio rápido
 
+Coloca los archivos de config gitignored en las rutas siguientes antes de ejecutar.
+
+| Archivo | Ubicación |
+|---------|-----------|
+| `.env` | Raíz del repositorio (`sweeper/.env`) |
+| `google-services.json` | `android/app/google-services.json` |
+| `GoogleService-Info.plist` | `ios/Runner/GoogleService-Info.plist` |
+
 ```bash
 # 1. Install Melos once (optional — also available via `dart run melos` at repo root)
 dart pub global activate melos
@@ -36,16 +44,9 @@ dart pub global activate melos
 # 2. Link local packages and run pub get everywhere
 dart run melos bootstrap
 
-# 3. Copy env template and fill in Firebase / Google Sign-In values
-cp .env.example .env
-# Values from Firebase Console or `flutterfire configure`
+# 3. Añade los archivos de config (ver tabla arriba)
 
-# 4. Add Firebase native config (gitignored — not in the repo)
-cp android/app/google-services.json.example android/app/google-services.json
-cp ios/Runner/GoogleService-Info.plist.example ios/Runner/GoogleService-Info.plist
-# Replace placeholders with values from Firebase Console → Project settings → Your apps
-
-# 5. Run on a device or simulator (Android / iOS only)
+# 4. Run on a device or simulator (Android / iOS only)
 flutter run
 ```
 
@@ -53,7 +54,7 @@ flutter run
 
 **Se requiere internet** para el feed de BTC vía WebSocket de Binance.
 
-**Firebase obligatorio:** copia `.env.example` → `.env` y añade los archivos de configuración nativos antes de ejecutar. La app no arranca sin credenciales Firebase válidas.
+La app no arranca hasta que `.env` y los archivos nativos de Firebase estén en su lugar.
 
 ---
 
@@ -77,7 +78,7 @@ flutter run
 | Escenario | Comportamiento |
 |-----------|----------------|
 | **iOS** | Google Sign-In obligatorio para jugar (sin modo invitado). |
-| **Android** | Google Sign-In **o** **Jugar como invitado** para evitar registrar manualmente el certificado SHA-1 de debug en Firebase. |
+| **Android** | Google Sign-In **o** **Jugar como invitado** (sin cuenta). |
 
 El modo invitado se resuelve al iniciar mediante `AppAccessConfig` (flag exclusiva de Android).
 
@@ -103,7 +104,7 @@ sweeper/                          ← App shell (android/, ios/, lib/)
 │   ├── sweeper_auth/             ← Firebase/Google auth, session, login UI
 │   ├── sweeper_settings/         ← Preferences (domain, data, presentation)
 │   └── sweeper_game/             ← Game domain, data, presentation
-├── .env.example                  ← Committed template (copy to `.env`, gitignored)
+├── .env                          ← Gitignored
 ├── melos.yaml
 └── pubspec.yaml
 ```
@@ -140,12 +141,6 @@ Código transversal queda junto a las tres carpetas cuando cruza features — p.
 
 Gestión de estado: **Cubits** (`flutter_bloc`) — registrados en el árbol de widgets vía `MultiBlocProvider` en `app.dart`. Navegación: **go_router** con rutas tipadas en `AppPaths` (`lib/core/router`). DI: **get_it** para services/repos singleton.
 
-### Decisiones de diseño clave
-
-- **`GameEngine`** sigue siendo un único orquestador — todos los métodos mutan un `GameSnapshot` y emiten eventos. La configuración del tablero se extrajo a `BoardInitializer`; la clonación de la cuadrícula a `cell_grid_clone.dart`.
-- **El tema** vive en `sweeper_theme` (sistema de tokens). Los assets de paquetes (p. ej. SVG del logo de Google) deben cargarse con `package: 'sweeper_theme'`.
-- **El gameplay en vivo** usa el WebSocket de Binance.
-
 ---
 
 ## Dependencias (visión general)
@@ -155,7 +150,7 @@ Gestión de estado: **Cubits** (`flutter_bloc`) — registrados en el árbol de 
 | Paquete | Propósito |
 |---------|-----------|
 | `firebase_core` | Inicialización de Firebase |
-| `flutter_dotenv` | Carga `.env` en runtime (secretos locales de dev) |
+| `flutter_dotenv` | Carga `.env` en runtime |
 | `flutter_bloc` | Proveedores de Cubit |
 | `get_it` | Inyección de dependencias (services/repos) |
 | `go_router` | Enrutamiento declarativo |

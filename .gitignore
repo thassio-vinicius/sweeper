@@ -127,3 +127,4 @@ app.*.symbols
 /.idea/
 .metadata
 sweeper.iml
+.DS_Store
