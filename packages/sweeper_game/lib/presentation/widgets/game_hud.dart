@@ -36,7 +36,7 @@ class StatCard extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: valueColor.withValues(alpha: AppOpacity.accentBorderSubtle),
-            blurRadius: 12,
+            blurRadius: AppBlur.lg,
           ),
         ],
       ),
@@ -157,7 +157,7 @@ class _PulsingValueState extends State<_PulsingValue>
           shadows: [
             Shadow(
               color: widget.valueColor.withValues(alpha: AppOpacity.accentBorderSoft),
-              blurRadius: 8 * _scale.value,
+              blurRadius: AppBlur.sm * _scale.value,
             ),
           ],
         ),
@@ -174,7 +174,7 @@ String formatWholeDollars(int wholeDollars) {
 }
 
 String formatBtcPrice(double? price) {
-  if (price == null) return '--';
+  if (price == null) return AppGlyphs.unavailable;
   return formatWholeDollars(BtcPrice.wholeDollars(price));
 }
 

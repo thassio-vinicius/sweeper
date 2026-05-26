@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sweeper_l10n/sweeper_l10n.dart';
-import 'package:sweeper_theme/app_colors.dart';
+import 'package:sweeper_theme/app_tokens.dart';
 
 class GameHeader extends StatelessWidget {
   const GameHeader({

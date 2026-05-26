@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sweeper_l10n/sweeper_l10n.dart';
 import 'package:sweeper_theme/app_tokens.dart';
 import 'package:sweeper_auth/presentation/cubit/auth_cubit.dart';
 import 'package:sweeper_auth/presentation/widgets/google_sign_in_button.dart';
@@ -45,19 +44,7 @@ class LoginPage extends StatelessWidget {
                             GameTitleHero(
                               board: const LoginBoardPreview(gridSize: 3),
                             ),
-                            if (auth.isAvailable)
-                              _LoginActions(auth: auth)
-                            else
-                              Text(
-                                AppLocalizations.of(context).authUnavailable,
-                                textAlign: TextAlign.center,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.copyWith(
-                                      color: AppColors.coralRed,
-                                    ),
-                              ),
+                            _LoginActions(auth: auth),
                             const LoginFeatureGuide(),
                           ],
                         ),

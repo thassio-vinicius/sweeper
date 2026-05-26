@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sweeper_core/app_paths.dart';
 import 'package:sweeper_game/domain/entities/game_config.dart';
 import 'package:sweeper_game/presentation/cubit/game_cubit.dart';
 import 'package:sweeper_game/presentation/cubit/game_state.dart';
@@ -14,7 +15,7 @@ import 'package:sweeper_game/presentation/widgets/game_stats_grid.dart';
 import 'package:sweeper_game/presentation/widgets/magic_bomb_banner.dart';
 import 'package:sweeper_l10n/sweeper_l10n.dart';
 import 'package:sweeper_settings/sweeper_settings.dart';
-import 'package:sweeper_theme/app_spacing.dart';
+import 'package:sweeper_theme/app_tokens.dart';
 
 class GamePage extends StatefulWidget {
   const GamePage({super.key});
@@ -49,7 +50,7 @@ class _GamePageState extends State<GamePage> {
         if (state.status == GameStatus.gameOver) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (!context.mounted) return;
-            context.push('/game-over', extra: state.discoveredCount);
+            context.push(AppPaths.gameOver, extra: state.discoveredCount);
           });
         }
         if (state.errorMessage != null) {

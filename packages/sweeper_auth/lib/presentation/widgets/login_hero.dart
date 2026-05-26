@@ -27,7 +27,7 @@ class GameTitleHero extends StatelessWidget {
         color: AppColors.surface.withValues(alpha: AppOpacity.surfaceStrong),
         borderRadius: BorderRadius.circular(AppRadii.md),
         border: Border.all(color: AppColors.surfaceBorder),
-        boxShadow: AppShadows.loginHeroPrimary,
+        boxShadow: AppShadows.heroCard,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -37,21 +37,21 @@ class GameTitleHero extends StatelessWidget {
           ShaderMask(
             blendMode: BlendMode.srcIn,
             shaderCallback: (bounds) =>
-                AppGradients.loginEyebrow.createShader(bounds),
+                AppGradients.gradientEyebrow.createShader(bounds),
             child: Text(
               l10n.reversed,
-              style: AppTypography.loginEyebrow,
+              style: AppTypography.eyebrow,
             ),
           ),
           const SizedBox(height: AppSpacing.xs),
           ShaderMask(
             blendMode: BlendMode.srcIn,
             shaderCallback: (bounds) =>
-                AppGradients.loginTitle.createShader(bounds),
+                AppGradients.gradientHeadline.createShader(bounds),
             child: Text(
               l10n.minesweeper,
               textAlign: TextAlign.center,
-              style: AppTypography.loginTitle.copyWith(
+              style: AppTypography.displayHeadline.copyWith(
                 shadows: AppShadows.titleTextGlow,
               ),
             ),
@@ -177,7 +177,7 @@ class _FeatureRow extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: AppTypography.loginFeature,
+              style: AppTypography.bodyFeature,
             ),
           ),
         ],

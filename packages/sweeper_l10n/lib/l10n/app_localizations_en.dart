@@ -70,6 +70,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signInWithGoogle => 'Sign in with Google';
 
   @override
+  String get semanticsGoogleLogo => 'Google';
+
+  @override
   String get signOut => 'Sign Out';
 
   @override
@@ -96,10 +99,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loginFeatureBlast => 'Hidden bombs auto-detonate every 10 seconds';
-
-  @override
-  String get authUnavailable =>
-      'Sign-in is unavailable. Check your Firebase configuration.';
 
   @override
   String get settings => 'Settings';

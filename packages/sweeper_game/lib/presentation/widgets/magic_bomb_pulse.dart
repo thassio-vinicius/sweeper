@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sweeper_theme/app_colors.dart';
+import 'package:sweeper_theme/app_tokens.dart';
 
 /// Pulse when a magic bomb spawns from a BTC price divisible by 5.
 class MagicBombPulse extends StatefulWidget {

@@ -1,4 +1,7 @@
-# Miscellaneous
+# Copy from .env.example and fill in — then add `.env` to pubspec assets locally.
+.env
+env.json
+lib/firebase_options.dart
 *.class
 *.lock
 *.log

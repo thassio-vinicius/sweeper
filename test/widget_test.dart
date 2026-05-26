@@ -37,10 +37,7 @@ void main() {
         .thenAnswer((_) => const Stream.empty());
     when(() => authRepo.authStateChanges).thenAnswer((_) => const Stream.empty());
     when(() => authRepo.currentUser).thenReturn(null);
-    when(() => authRepo.isAvailable).thenReturn(false);
     when(() => authRepo.waitForInitialAuthState()).thenAnswer((_) async {});
-    when(() => authRepo.getIdToken(forceRefresh: any(named: 'forceRefresh')))
-        .thenAnswer((_) async => null);
   });
 
   Widget buildApp(Widget child) {

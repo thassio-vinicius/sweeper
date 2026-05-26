@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sweeper_theme/app_colors.dart';
-import 'package:sweeper_theme/app_spacing.dart';
+import 'package:sweeper_theme/app_tokens.dart';
 
 class MagicBombBanner extends StatefulWidget {
   const MagicBombBanner({
@@ -118,7 +117,7 @@ class _MagicBombBannerState extends State<MagicBombBanner>
               boxShadow: [
                 BoxShadow(
                   color: AppColors.sun.withValues(alpha: 0.45),
-                  blurRadius: 24,
+                  blurRadius: AppBlur.xl4,
                   spreadRadius: 2,
                 ),
               ],
@@ -135,12 +134,8 @@ class _MagicBombBannerState extends State<MagicBombBanner>
                 Flexible(
                   child: Text(
                     widget.message,
-                    style: const TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
+                    style: AppTypography.emphasisLabel.copyWith(
                       color: AppColors.background,
-                      letterSpacing: 0.4,
                     ),
                     textAlign: TextAlign.center,
                   ),

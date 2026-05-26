@@ -8,8 +8,7 @@ import 'package:sweeper_game/presentation/cubit/game_cubit.dart';
 import 'package:sweeper_game/presentation/cubit/pause_reason.dart';
 import 'package:sweeper_l10n/sweeper_l10n.dart';
 import 'package:sweeper_settings/sweeper_settings.dart';
-import 'package:sweeper_theme/app_colors.dart';
-import 'package:sweeper_theme/app_spacing.dart';
+import 'package:sweeper_theme/app_tokens.dart';
 
 Future<bool?> showGameSettingsSheet(
   BuildContext context, {
@@ -64,9 +63,6 @@ Future<bool?> showGameSettingsSheet(
                 const SizedBox(height: AppSpacing.lg),
                 BlocBuilder<AuthCubit, AuthState>(
                   builder: (context, auth) {
-                    if (!auth.isAvailable) {
-                      return const SizedBox.shrink();
-                    }
                     if (auth.isGuest) {
                       return GuestSessionSection(
                         isLoading: auth.isLoading,

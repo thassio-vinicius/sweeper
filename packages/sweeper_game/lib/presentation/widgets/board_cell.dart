@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sweeper_game/domain/entities/board_drag_data.dart';
 import 'package:sweeper_game/domain/entities/bomb_status.dart';
 import 'package:sweeper_game/domain/entities/cell.dart';
-import 'package:sweeper_theme/app_colors.dart';
-import 'package:sweeper_theme/app_spacing.dart';
+import 'package:sweeper_theme/app_tokens.dart';
 import 'package:sweeper_game/presentation/widgets/snap_back_draggable_piece.dart';
 
 class BoardCell extends StatelessWidget {

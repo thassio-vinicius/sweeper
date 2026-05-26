@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:sweeper_theme/app_colors.dart';
+import 'package:sweeper_theme/app_tokens.dart';
 
 /// Explosion effect — must be a direct child of a [Stack] (returns [Positioned]).
 class ExplosionEffect extends StatefulWidget {
@@ -78,7 +78,7 @@ class _ExplosionEffectState extends State<ExplosionEffect>
                   boxShadow: [
                     BoxShadow(
                       color: AppColors.coralRed.withValues(alpha: 0.8),
-                      blurRadius: 20 * _scale.value,
+                      blurRadius: AppBlur.xl3 * _scale.value,
                       spreadRadius: 4,
                     ),
                   ],

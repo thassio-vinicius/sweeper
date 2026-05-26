@@ -4,18 +4,23 @@ import 'package:sweeper_theme/tokens/asset_tokens.dart';
 import 'package:sweeper_theme/tokens/size_tokens.dart';
 
 class GoogleLogo extends StatelessWidget {
-  const GoogleLogo({super.key, this.size = AppSizes.iconLg});
+  const GoogleLogo({
+    super.key,
+    this.size = AppSizes.iconLg,
+    required this.semanticsLabel,
+  });
 
   final double size;
+  final String semanticsLabel;
 
   @override
   Widget build(BuildContext context) {
     return SvgPicture.asset(
       AppAssets.googleLogo,
-      package: AppAssets.package,
+      package: AppAssets.packageName,
       width: size,
       height: size,
-      semanticsLabel: 'Google',
+      semanticsLabel: semanticsLabel,
     );
   }
 }

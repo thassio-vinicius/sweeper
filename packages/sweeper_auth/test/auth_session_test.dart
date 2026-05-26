@@ -11,7 +11,6 @@ void main() {
 
   setUp(() {
     authRepository = MockAuthRepository();
-    when(() => authRepository.isAvailable).thenReturn(true);
     when(() => authRepository.currentUser).thenReturn(null);
     when(() => authRepository.authStateChanges)
         .thenAnswer((_) => const Stream.empty());
@@ -28,7 +27,6 @@ void main() {
     session.enterGuestMode();
     expect(session.isGuest, isTrue);
     expect(session.canPlayGame, isTrue);
-    expect(session.httpCredentialMode, HttpCredentialMode.anonymous);
   });
 
   test('guest mode unavailable on non-Android config', () {
@@ -42,7 +40,7 @@ void main() {
     expect(session.canPlayGame, isFalse);
   });
 
-  test('authenticated session uses bearer credentials', () {
+  test('sign-in clears guest mode', () {
     when(() => authRepository.currentUser).thenReturn(
       const AuthUser(id: '1', email: 'a@b.com'),
     );
@@ -54,6 +52,6 @@ void main() {
 
     session.enterGuestMode();
     expect(session.isGuest, isFalse);
-    expect(session.httpCredentialMode, HttpCredentialMode.bearer);
+    expect(session.canPlayGame, isTrue);
   });
 }

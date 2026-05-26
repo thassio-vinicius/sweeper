@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:sweeper_theme/tokens/blur_tokens.dart';
 import 'package:sweeper_theme/tokens/color_tokens.dart';
 import 'package:sweeper_theme/tokens/opacity_tokens.dart';
 
 /// Elevation and glow shadow tokens.
 abstract final class AppShadows {
-  static List<BoxShadow> googleSignIn({Color? shadowColor}) => [
+  static List<BoxShadow> externalButton({Color? shadowColor}) => [
         BoxShadow(
           color: (shadowColor ?? Colors.black)
-              .withValues(alpha: AppOpacity.googleShadow),
-          blurRadius: 8,
+              .withValues(alpha: AppOpacity.shadowExternal),
+          blurRadius: AppBlur.sm,
           offset: const Offset(0, 2),
         ),
       ];
@@ -16,50 +17,42 @@ abstract final class AppShadows {
   static List<BoxShadow> surfaceCard({required Color accent}) => [
         BoxShadow(
           color: accent.withValues(alpha: AppOpacity.cardAccentGlow),
-          blurRadius: 24,
+          blurRadius: AppBlur.xl4,
           spreadRadius: -4,
         ),
       ];
 
-  static List<BoxShadow> get loginHeroPrimary => [
-    BoxShadow(
-      color: AppColors.cyan.withValues(alpha: AppOpacity.heroCyanGlow),
-      blurRadius: 32,
-      spreadRadius: -6,
-    ),
-    BoxShadow(
-      color: AppColors.coralRed.withValues(alpha: AppOpacity.heroCoralGlow),
-      blurRadius: 24,
-      offset: const Offset(0, 12),
-    ),
-  ];
+  static List<BoxShadow> get heroCard => [
+        BoxShadow(
+          color: AppColors.cyan.withValues(alpha: AppOpacity.heroCyanGlow),
+          blurRadius: AppBlur.xl6,
+          spreadRadius: -6,
+        ),
+        BoxShadow(
+          color: AppColors.coralRed.withValues(alpha: AppOpacity.heroCoralGlow),
+          blurRadius: AppBlur.xl4,
+          offset: const Offset(0, 12),
+        ),
+      ];
 
   static List<BoxShadow> titleIcon({required Color accent}) => [
         BoxShadow(
           color: accent.withValues(alpha: AppOpacity.accentGlowMedium),
-          blurRadius: 16,
+          blurRadius: AppBlur.xl,
         ),
       ];
 
   static List<Shadow> get titleTextGlow => [
         Shadow(
           color: AppColors.cyan.withValues(alpha: AppOpacity.accentGlowStrong),
-          blurRadius: 18,
+          blurRadius: AppBlur.xl2,
         ),
       ];
 
   static List<BoxShadow> get magicCell => [
         BoxShadow(
           color: AppColors.sun.withValues(alpha: AppOpacity.magicCellGlow),
-          blurRadius: 10,
-        ),
-      ];
-
-  static List<BoxShadow> get loginBoardPreview => [
-        BoxShadow(
-          color: AppColors.cyan.withValues(alpha: AppOpacity.accentBorderSubtle),
-          blurRadius: 28,
-          spreadRadius: -2,
+          blurRadius: AppBlur.md,
         ),
       ];
 }

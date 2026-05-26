@@ -9,7 +9,6 @@ import 'package:sweeper_auth/domain/repositories/auth_repository.dart';
 
 class AuthState extends Equatable {
   const AuthState({
-    this.isAvailable = false,
     this.guestModeAvailable = false,
     this.user,
     this.isGuest = false,
@@ -18,7 +17,6 @@ class AuthState extends Equatable {
     this.error,
   });
 
-  final bool isAvailable;
   final bool guestModeAvailable;
   final AuthUser? user;
   final bool isGuest;
@@ -27,10 +25,9 @@ class AuthState extends Equatable {
   final String? error;
 
   bool get isAuthenticated => user != null;
-  bool get canPlayGame => isAuthenticated || isGuest || !isAvailable;
+  bool get canPlayGame => isAuthenticated || isGuest;
 
   AuthState copyWith({
-    bool? isAvailable,
     bool? guestModeAvailable,
     AuthUser? user,
     bool? isGuest,
@@ -41,7 +38,6 @@ class AuthState extends Equatable {
     bool clearUser = false,
   }) {
     return AuthState(
-      isAvailable: isAvailable ?? this.isAvailable,
       guestModeAvailable: guestModeAvailable ?? this.guestModeAvailable,
       user: clearUser ? null : (user ?? this.user),
       isGuest: isGuest ?? this.isGuest,
@@ -53,7 +49,6 @@ class AuthState extends Equatable {
 
   @override
   List<Object?> get props => [
-        isAvailable,
         guestModeAvailable,
         user,
         isGuest,
@@ -67,7 +62,6 @@ class AuthCubit extends Cubit<AuthState> {
   AuthCubit(this._repository, this._session)
       : super(
           AuthState(
-            isAvailable: _repository.isAvailable,
             guestModeAvailable: _session.guestModeAvailable,
             user: _repository.currentUser,
             isGuest: _session.isGuest,
@@ -76,19 +70,17 @@ class AuthCubit extends Cubit<AuthState> {
     _sessionListener = () => emit(_mappedState());
     _session.addListener(_sessionListener);
 
-    if (_repository.isAvailable) {
-      _subscription = _repository.authStateChanges.listen((user) {
-        emit(
-          state.copyWith(
-            user: user,
-            isGuest: _session.isGuest,
-            isLoading: false,
-            isSigningOut: false,
-            clearError: true,
-          ),
-        );
-      });
-    }
+    _subscription = _repository.authStateChanges.listen((user) {
+      emit(
+        state.copyWith(
+          user: user,
+          isGuest: _session.isGuest,
+          isLoading: false,
+          isSigningOut: false,
+          clearError: true,
+        ),
+      );
+    });
   }
 
   final AuthRepository _repository;
@@ -110,7 +102,6 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   Future<void> signInWithGoogle() async {
-    if (!_repository.isAvailable) return;
     emit(state.copyWith(isLoading: true, clearError: true));
     try {
       final user = await _repository.signInWithGoogle();
@@ -127,7 +118,7 @@ class AuthCubit extends Cubit<AuthState> {
     emit(state.copyWith(isSigningOut: true, clearError: true));
     try {
       _session.clearGuestMode();
-      if (_repository.isAvailable && _repository.currentUser != null) {
+      if (_repository.currentUser != null) {
         await _repository.signOut();
       }
       emit(

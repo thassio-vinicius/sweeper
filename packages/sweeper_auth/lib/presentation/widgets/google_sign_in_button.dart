@@ -28,12 +28,12 @@ class GoogleSignInButton extends StatelessWidget {
           height: AppSizes.buttonHeightLg,
           decoration: BoxDecoration(
             color: enabled
-                ? AppColors.googleSignInBackground
-                : AppColors.googleSignInBackground
+                ? AppColors.externalButtonBackground
+                : AppColors.externalButtonBackground
                     .withValues(alpha: AppOpacity.disabled),
             borderRadius: BorderRadius.circular(AppRadii.md),
-            border: Border.all(color: AppColors.googleSignInBorder),
-            boxShadow: AppShadows.googleSignIn(),
+            border: Border.all(color: AppColors.externalButtonBorder),
+            boxShadow: AppShadows.externalButton(),
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
@@ -46,16 +46,16 @@ class GoogleSignInButton extends StatelessWidget {
                     height: AppSizes.iconLg,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: AppColors.googleSignInForeground
+                      color: AppColors.externalButtonForeground
                           .withValues(alpha: AppOpacity.disabled),
                     ),
                   )
                 else
-                  const GoogleLogo(),
+                  GoogleLogo(semanticsLabel: l10n.semanticsGoogleLogo),
                 const SizedBox(width: AppSpacing.md),
                 Text(
                   l10n.signInWithGoogle,
-                  style: AppTypography.googleSignInLabel,
+                  style: AppTypography.externalButtonLabel,
                 ),
               ],
             ),

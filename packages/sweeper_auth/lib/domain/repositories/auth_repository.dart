@@ -18,18 +18,12 @@ class AuthUser extends Equatable {
 }
 
 abstract class AuthRepository {
-  /// Whether Google Sign-In is configured and usable.
-  bool get isAvailable;
-
   Stream<AuthUser?> get authStateChanges;
 
   AuthUser? get currentUser;
 
   /// Waits until Firebase restores the persisted session on cold start.
   Future<void> waitForInitialAuthState();
-
-  /// Returns a Firebase ID token for authenticated HTTP requests.
-  Future<String?> getIdToken({bool forceRefresh = false});
 
   Future<AuthUser> signInWithGoogle();
 

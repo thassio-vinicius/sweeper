@@ -130,18 +130,18 @@ class _GameOverAnimationState extends State<GameOverAnimation>
                         fontWeight: FontWeight.w900,
                         height: 1,
                         foreground: Paint()
-                          ..shader = AppGradients.loginTitle.createShader(
+                          ..shader = AppGradients.gradientHeadline.createShader(
                             const Rect.fromLTWH(0, 0, 120, 80),
                           ),
                         shadows: [
                           Shadow(
                             color: AppColors.springGreen
                                 .withValues(alpha: 0.75 * glow),
-                            blurRadius: 28,
+                            blurRadius: AppBlur.xl5,
                           ),
                           Shadow(
                             color: AppColors.cyan.withValues(alpha: 0.35 * glow),
-                            blurRadius: 40,
+                            blurRadius: AppBlur.xl7,
                           ),
                         ],
                       ),
@@ -167,14 +167,14 @@ class _GameOverAnimationState extends State<GameOverAnimation>
                       boxShadow: [
                         BoxShadow(
                           color: AppColors.springGreen.withValues(alpha: 0.2),
-                          blurRadius: 16,
+                          blurRadius: AppBlur.xl,
                         ),
                       ],
                     ),
                     child: Text(
                       widget.label,
                       textAlign: TextAlign.center,
-                      style: AppTypography.loginFeature.copyWith(
+                      style: AppTypography.bodyFeature.copyWith(
                         color: AppColors.textPrimary,
                       ),
                     ),
@@ -233,7 +233,7 @@ class _Spark extends StatelessWidget {
               boxShadow: [
                 BoxShadow(
                   color: AppColors.sun.withValues(alpha: 0.6 * opacity),
-                  blurRadius: 6,
+                  blurRadius: AppBlur.xs,
                 ),
               ],
             ),

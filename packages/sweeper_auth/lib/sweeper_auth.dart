@@ -2,7 +2,6 @@
 export 'config/app_access_config.dart';
 export 'config/create_app_access_config.dart';
 export 'data/repositories/auth_repository_impl.dart';
-export 'data/repositories/noop_auth_repository.dart';
 export 'domain/repositories/auth_repository.dart';
 export 'presentation/cubit/auth_cubit.dart';
 export 'presentation/pages/login_page.dart';

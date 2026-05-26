@@ -202,6 +202,12 @@ abstract class AppLocalizations {
   /// **'Sign in with Google'**
   String get signInWithGoogle;
 
+  /// No description provided for @semanticsGoogleLogo.
+  ///
+  /// In en, this message translates to:
+  /// **'Google'**
+  String get semanticsGoogleLogo;
+
   /// No description provided for @signOut.
   ///
   /// In en, this message translates to:
@@ -255,12 +261,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hidden bombs auto-detonate every 10 seconds'**
   String get loginFeatureBlast;
-
-  /// No description provided for @authUnavailable.
-  ///
-  /// In en, this message translates to:
-  /// **'Sign-in is unavailable. Check your Firebase configuration.'**
-  String get authUnavailable;
 
   /// No description provided for @settings.
   ///

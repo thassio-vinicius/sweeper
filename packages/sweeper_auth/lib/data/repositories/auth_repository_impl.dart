@@ -3,25 +3,19 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sweeper_core/failures.dart';
 import 'package:sweeper_auth/domain/repositories/auth_repository.dart';
 
-/// Web client ID from Firebase console — required on Android for ID tokens.
-const _googleServerClientId =
-    '54918616264-0ui538bu0hkdqt4l9tp3n6cqipn3sgq0.apps.googleusercontent.com';
-
 class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl({
     FirebaseAuth? firebaseAuth,
     GoogleSignIn? googleSignIn,
+    String? googleServerClientId,
   })  : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
         _googleSignIn = googleSignIn ??
             GoogleSignIn(
-              serverClientId: _googleServerClientId,
+              serverClientId: googleServerClientId,
             );
 
   final FirebaseAuth _firebaseAuth;
   final GoogleSignIn _googleSignIn;
-
-  @override
-  bool get isAvailable => true;
 
   @override
   Stream<AuthUser?> get authStateChanges =>
@@ -33,13 +27,6 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<void> waitForInitialAuthState() async {
     await authStateChanges.first;
-  }
-
-  @override
-  Future<String?> getIdToken({bool forceRefresh = false}) async {
-    final user = _firebaseAuth.currentUser;
-    if (user == null) return null;
-    return user.getIdToken(forceRefresh);
   }
 
   @override

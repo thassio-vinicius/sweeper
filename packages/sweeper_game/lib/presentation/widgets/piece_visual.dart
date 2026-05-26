@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sweeper_theme/app_colors.dart';
+import 'package:sweeper_theme/app_tokens.dart';
 
 /// Single shared piece design — glowing cyan token (PDF: same design for all).
 class PieceVisual extends StatelessWidget {
@@ -12,8 +12,7 @@ class PieceVisual extends StatelessWidget {
   final double size;
   final bool glowing;
 
-  static const color = AppColors.pieceCyan;
-  static const symbol = '◆';
+  static const color = AppColors.piece;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +26,7 @@ class PieceVisual extends StatelessWidget {
             ? [
                 BoxShadow(
                   color: color.withValues(alpha: 0.6),
-                  blurRadius: 12,
+                  blurRadius: AppBlur.lg,
                   spreadRadius: 1,
                 ),
               ]
@@ -35,7 +34,7 @@ class PieceVisual extends StatelessWidget {
       ),
       child: Center(
         child: Text(
-          symbol,
+          AppGlyphs.piece,
           style: TextStyle(
             fontSize: size * 0.42,
             color: AppColors.background,

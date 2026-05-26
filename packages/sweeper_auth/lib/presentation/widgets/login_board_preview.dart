@@ -14,9 +14,9 @@ class LoginBoardPreview extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final maxWidth =
-            constraints.maxWidth.clamp(0.0, AppSizes.loginBoardMaxWidth);
+            constraints.maxWidth.clamp(0.0, AppSizes.previewBoardMaxWidth);
         final cellSize =
-            (maxWidth - AppSizes.loginBoardGap * (gridSize - 1)) / gridSize;
+            (maxWidth - AppSizes.previewBoardGap * (gridSize - 1)) / gridSize;
 
         return Center(
           child: SizedBox(
@@ -26,14 +26,14 @@ class LoginBoardPreview extends StatelessWidget {
               physics: const NeverScrollableScrollPhysics(),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: gridSize,
-                crossAxisSpacing: AppSizes.loginBoardGap,
-                mainAxisSpacing: AppSizes.loginBoardGap,
+                crossAxisSpacing: AppSizes.previewBoardGap,
+                mainAxisSpacing: AppSizes.previewBoardGap,
               ),
               itemCount: cells.length,
               itemBuilder: (context, index) {
                 return _PreviewTile(
                   cell: cells[index],
-                  pieceSize: cellSize * AppSizes.loginBoardPieceScale,
+                  pieceSize: cellSize * AppSizes.previewBoardPieceScale,
                 );
               },
             ),
@@ -146,7 +146,7 @@ class _PreviewPiece extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const color = AppColors.pieceCyan;
+    const color = AppColors.piece;
 
     return Container(
       width: size,
@@ -158,7 +158,7 @@ class _PreviewPiece extends StatelessWidget {
             ? [
                 BoxShadow(
                   color: color.withValues(alpha: 0.6),
-                  blurRadius: 12,
+                  blurRadius: AppBlur.lg,
                   spreadRadius: 1,
                 ),
               ]
@@ -166,7 +166,7 @@ class _PreviewPiece extends StatelessWidget {
       ),
       alignment: Alignment.center,
       child: Text(
-        '◆',
+        AppGlyphs.piece,
         style: TextStyle(
           color: AppColors.background,
           fontSize: size * 0.45,

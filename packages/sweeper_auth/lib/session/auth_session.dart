@@ -4,25 +4,14 @@ import 'package:flutter/foundation.dart';
 import 'package:sweeper_auth/config/app_access_config.dart';
 import 'package:sweeper_auth/domain/repositories/auth_repository.dart';
 
-/// How outbound HTTP requests should be authenticated.
-enum HttpCredentialMode {
-  /// Attach a Firebase bearer token (required).
-  bearer,
-
-  /// Send without credentials (guest / unauthenticated gameplay).
-  anonymous,
-}
-
-/// Single source of truth for gameplay and HTTP access state.
+/// Single source of truth for gameplay access state.
 class AuthSession extends ChangeNotifier {
   AuthSession({
     required AuthRepository authRepository,
     required AppAccessConfig accessConfig,
   })  : _authRepository = authRepository,
         _accessConfig = accessConfig {
-    if (_authRepository.isAvailable) {
-      _subscription = _authRepository.authStateChanges.listen(_onAuthChanged);
-    }
+    _subscription = _authRepository.authStateChanges.listen(_onAuthChanged);
   }
 
   final AuthRepository _authRepository;
@@ -31,23 +20,12 @@ class AuthSession extends ChangeNotifier {
 
   bool _guestActive = false;
 
-  bool get isAvailable => _authRepository.isAvailable;
-  bool get guestModeAvailable =>
-      _accessConfig.androidGuestModeEnabled && _authRepository.isAvailable;
+  bool get guestModeAvailable => _accessConfig.androidGuestModeEnabled;
   bool get isGuest => _guestActive;
   bool get isAuthenticated => _authRepository.currentUser != null;
   AuthUser? get user => _authRepository.currentUser;
 
-  bool get canPlayGame =>
-      isAuthenticated || isGuest || !_authRepository.isAvailable;
-
-  HttpCredentialMode get httpCredentialMode {
-    if (isAuthenticated) return HttpCredentialMode.bearer;
-    if (isGuest || !_authRepository.isAvailable) {
-      return HttpCredentialMode.anonymous;
-    }
-    return HttpCredentialMode.bearer;
-  }
+  bool get canPlayGame => isAuthenticated || isGuest;
 
   void enterGuestMode() {
     if (!guestModeAvailable || isAuthenticated) return;

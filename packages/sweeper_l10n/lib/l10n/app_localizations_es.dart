@@ -70,6 +70,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get signInWithGoogle => 'Iniciar sesión con Google';
 
   @override
+  String get semanticsGoogleLogo => 'Google';
+
+  @override
   String get signOut => 'Cerrar sesión';
 
   @override
@@ -98,10 +101,6 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get loginFeatureBlast =>
       'Las bombas ocultas detonan automáticamente cada 10 segundos';
-
-  @override
-  String get authUnavailable =>
-      'Inicio de sesión no disponible. Revisa la configuración de Firebase.';
 
   @override
   String get settings => 'Configuración';

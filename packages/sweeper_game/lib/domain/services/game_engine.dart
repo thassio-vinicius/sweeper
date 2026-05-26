@@ -9,8 +9,7 @@ import 'package:sweeper_game/domain/services/cell_grid_clone.dart';
 /// Pure Dart game rules engine — no Flutter imports.
 ///
 /// Kept as a single orchestrator: every public method mutates one [GameSnapshot]
-/// and returns events. Splitting further would scatter snapshot lifecycle across
-/// types without reducing complexity — board setup lives in [BoardInitializer].
+/// and returns events. Board setup lives in [BoardInitializer].
 class GameEngine {
   GameEngine({
     required GameConfig config,

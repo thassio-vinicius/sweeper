@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sweeper/core/router/auth_redirect.dart';
 import 'package:sweeper/core/router/auth_refresh_notifier.dart';
 import 'package:sweeper_auth/presentation/pages/login_page.dart';
 import 'package:sweeper_auth/session/auth_session.dart';
+import 'package:sweeper_core/app_paths.dart';
 import 'package:sweeper_game/presentation/pages/game_over_page.dart';
 import 'package:sweeper_game/presentation/pages/game_page.dart';
 
@@ -10,27 +11,27 @@ class AppRouter {
   AppRouter({
     required AuthSession authSession,
     required AuthRefreshNotifier refreshNotifier,
-  })  : _authSession = authSession,
+  })  : _redirect = AuthRedirect(authSession),
         _refreshNotifier = refreshNotifier;
 
-  final AuthSession _authSession;
+  final AuthRedirect _redirect;
   final AuthRefreshNotifier _refreshNotifier;
 
   late final GoRouter router = GoRouter(
-    initialLocation: '/',
+    initialLocation: AppPaths.home,
     refreshListenable: _refreshNotifier,
-    redirect: _redirect,
+    redirect: (context, state) => _redirect.resolve(state.matchedLocation),
     routes: [
       GoRoute(
-        path: '/login',
+        path: AppPaths.login,
         builder: (context, state) => const LoginPage(),
       ),
       GoRoute(
-        path: '/',
+        path: AppPaths.home,
         builder: (context, state) => const GamePage(),
       ),
       GoRoute(
-        path: '/game-over',
+        path: AppPaths.gameOver,
         builder: (context, state) {
           final count = state.extra as int? ?? 0;
           return GameOverPage(discoveredCount: count);
@@ -38,23 +39,4 @@ class AppRouter {
       ),
     ],
   );
-
-  String? _redirect(BuildContext context, GoRouterState state) {
-    if (!_authSession.isAvailable) {
-      return state.matchedLocation == '/login' ? '/' : null;
-    }
-
-    final canPlay = _authSession.canPlayGame;
-    final isLoggingIn = state.matchedLocation == '/login';
-
-    if (!canPlay && !isLoggingIn) {
-      return '/login';
-    }
-
-    if (canPlay && isLoggingIn) {
-      return '/';
-    }
-
-    return null;
-  }
 }

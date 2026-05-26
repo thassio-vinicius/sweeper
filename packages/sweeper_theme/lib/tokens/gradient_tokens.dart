@@ -3,11 +3,11 @@ import 'package:sweeper_theme/tokens/color_tokens.dart';
 
 /// Gradient tokens for branded surfaces.
 abstract final class AppGradients {
-  static const loginEyebrow = LinearGradient(
+  static const gradientEyebrow = LinearGradient(
     colors: [AppColors.cyan, AppColors.springGreen],
   );
 
-  static const loginTitle = LinearGradient(
+  static const gradientHeadline = LinearGradient(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
     colors: [
