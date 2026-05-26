@@ -2,6 +2,15 @@
 
 A Flutter implementation of the **Reversed Minesweeper** code challenge. Players rearrange pre-placed pieces on a grid to discover hidden bombs before the timer explodes them. Live BTC prices from Binance can spawn magic bombs when the displayed whole-dollar price lands on a value ending in **0** or **5**.
 
+<p align="center">
+  <img src="previews/img.png" alt="Login screen" width="49%" />
+  <img src="previews/img_1.png" alt="Gameplay with magic bomb banner" width="49%" />
+</p>
+<p align="center">
+  <img src="previews/img_2.png" alt="Settings sheet" width="49%" />
+  <img src="previews/img_3.png" alt="Game over screen" width="49%" />
+</p>
+
 ---
 
 ## Flutter & Dart versions
