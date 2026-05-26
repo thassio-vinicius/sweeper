@@ -38,7 +38,7 @@ cp ios/Runner/GoogleService-Info.plist.example ios/Runner/GoogleService-Info.pli
 flutter run
 ```
 
-**Platform targets:** **Android** and **iOS** only (`android/`, `ios/` at repo root).
+**Platform targets:** **Android** and **iOS** only.
 
 **Internet required** for the Binance WebSocket BTC feed.
 
