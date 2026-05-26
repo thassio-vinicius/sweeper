@@ -203,17 +203,6 @@ dart run melos test
 
 Measured by merging `coverage/lcov.info` from every package that has tests (app shell, `sweeper_auth`, `sweeper_game`, `sweeper_settings`, `sweeper_theme`).
 
-**How the merged number is computed**
-
-1. Run `flutter test --coverage` in each package with a `test/` directory. Flutter writes `coverage/lcov.info` per package; paths inside are relative (`lib/...`).
-2. Prefix package paths when merging (`packages/sweeper_game/lib/...`, etc.) so files from different modules do not collide. App-shell paths stay as `lib/...`.
-3. For each source file, read lcov `LF` (lines found) and `LH` (lines hit) and sum across all merged files under `lib/`.
-4. **Overall** = total `LH` ÷ total `LF`. **Core logic** uses the same merge but only counts `domain/`, `data/`, `presentation/cubit/`, `session/`, and `core/clock.dart`.
-
-Packages without tests (e.g. `sweeper_l10n`) are not instrumented and are excluded from the denominator. UI widgets and theme tokens are included in overall coverage but excluded from the core-logic figure.
-
-**Regenerate locally**
-
 ```bash
 dart run melos exec --dir-exists=test -- flutter test --coverage
 # then merge the five lcov files (requires lcov):
