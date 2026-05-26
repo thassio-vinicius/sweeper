@@ -8,4 +8,24 @@ abstract final class AppLocales {
     Locale('es'),
     Locale('pt'),
   ];
+
+  static const supportedLanguageCodes = ['en', 'es', 'pt'];
+
+  static String displayName(String languageCode) {
+    return switch (languageCode) {
+      'es' => 'Español',
+      'pt' => 'Português',
+      _ => 'English',
+    };
+  }
+
+  static bool isSupportedLanguage(String languageCode) {
+    return supportedLanguageCodes.contains(languageCode);
+  }
+
+  static Locale localeFor(String languageCode) {
+    return isSupportedLanguage(languageCode)
+        ? Locale(languageCode)
+        : fallback;
+  }
 }

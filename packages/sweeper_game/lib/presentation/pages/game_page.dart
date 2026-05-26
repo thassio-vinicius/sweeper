@@ -25,16 +25,57 @@ class GamePage extends StatefulWidget {
 }
 
 class _GamePageState extends State<GamePage> {
+  var _gameStarted = false;
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final settings = context.read<SettingsCubit>().state;
-      context.read<GameCubit>().startGame(
-            config: GameConfig.fromGridSize(settings.gridSize),
-          );
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _tryStartGame());
   }
+
+  void _tryStartGame() {
+    if (_gameStarted || !mounted) return;
+    final settings = context.read<SettingsCubit>().state;
+    if (!settings.isLoaded) return;
+    _gameStarted = true;
+    context.read<GameCubit>().startGame(
+          config: GameConfig.fromGridSize(settings.gridSize),
+        );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<SettingsCubit, SettingsState>(
+      listenWhen: (prev, curr) => curr.isLoaded && !prev.isLoaded,
+      listener: (context, settings) => _tryStartGame(),
+      child: BlocBuilder<SettingsCubit, SettingsState>(
+        builder: (context, settings) {
+          if (!settings.isLoaded) {
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
+          return _GameBody(onOpenSettings: _openSettings);
+        },
+      ),
+    );
+  }
+
+  Future<void> _openSettings(GameCubit gameCubit) async {
+    final sessionEnded = await showGameSettingsSheet(
+      context,
+      gameCubit: gameCubit,
+    );
+    if (!mounted) return;
+    if (sessionEnded == true) return;
+    gameCubit.resume();
+  }
+}
+
+class _GameBody extends StatelessWidget {
+  const _GameBody({required this.onOpenSettings});
+
+  final Future<void> Function(GameCubit gameCubit) onOpenSettings;
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +89,7 @@ class _GamePageState extends State<GamePage> {
         if (state.status == GameStatus.gameOver) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (!context.mounted) return;
-            context.push(GameNavigation.gameOver, extra: state.discoveredCount);
+            context.go(GameNavigation.gameOver, extra: state.discoveredCount);
           });
         }
         if (state.errorMessage != null) {
@@ -100,7 +141,7 @@ class _GamePageState extends State<GamePage> {
                                   config: GameConfig.fromGridSize(gridSize),
                                 );
                               },
-                              onSettings: () => _openSettings(cubit),
+                              onSettings: () => onOpenSettings(cubit),
                             ),
                             const SizedBox(height: AppSpacing.lg),
                             GameStatsGrid(state: state),
@@ -112,6 +153,8 @@ class _GamePageState extends State<GamePage> {
                               explosionAt: state.explosionAt,
                               magicBombAt: state.magicBombAt,
                               magicBombGeneration: state.magicBombGeneration,
+                              slideMove: state.slideMove,
+                              slideGeneration: state.slideGeneration,
                               isInteractive: state.isInteractive,
                               onMovePiece: ({
                                 required fromRow,
@@ -180,15 +223,5 @@ class _GamePageState extends State<GamePage> {
         );
       },
     );
-  }
-
-  Future<void> _openSettings(GameCubit gameCubit) async {
-    final sessionEnded = await showGameSettingsSheet(
-      context,
-      gameCubit: gameCubit,
-    );
-    if (!mounted) return;
-    if (sessionEnded == true) return;
-    gameCubit.resume();
   }
 }

@@ -15,6 +15,7 @@ class BoardCell extends StatelessWidget {
     required this.onDrop,
     required this.onInvalidDrop,
     required this.isInteractive,
+    this.hidePiece = false,
   });
 
   final Cell cell;
@@ -24,11 +25,14 @@ class BoardCell extends StatelessWidget {
   final void Function(BoardDragData data, int toRow, int toCol) onDrop;
   final void Function(int fromRow, int fromCol) onInvalidDrop;
   final bool isInteractive;
+  final bool hidePiece;
 
   @override
   Widget build(BuildContext context) {
     final isScorched =
         cell.bombStatus == BombStatus.exploded && cell.piece == null;
+    final isDiscovered =
+        cell.bombStatus == BombStatus.discovered && cell.piece != null;
 
     return DragTarget<BoardDragData>(
       onWillAcceptWithDetails: (details) {
@@ -56,7 +60,9 @@ class BoardCell extends StatelessWidget {
                       ? AppColors.cyan.withValues(alpha: 0.15)
                       : isScorched
                           ? AppColors.coralRed.withValues(alpha: 0.08)
-                          : AppColors.cellEmpty,
+                          : isDiscovered
+                              ? AppColors.coralRed.withValues(alpha: 0.06)
+                              : AppColors.cellEmpty,
               borderRadius: BorderRadius.circular(AppSpacing.cellRadius),
               border: Border.all(
                 color: isRejectedTarget
@@ -65,10 +71,12 @@ class BoardCell extends StatelessWidget {
                         ? AppColors.cyan.withValues(alpha: 0.5)
                         : isScorched
                             ? AppColors.coralRed.withValues(alpha: 0.25)
-                            : AppColors.cellBorder,
+                            : isDiscovered
+                                ? AppColors.coralRed.withValues(alpha: 0.45)
+                                : AppColors.cellBorder,
               ),
             ),
-            child: cell.piece != null
+            child: cell.piece != null && !hidePiece
                 ? Center(
                     child: SnapBackDraggablePiece(
                       dragData: BoardDragData(

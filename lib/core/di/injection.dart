@@ -11,6 +11,7 @@ import 'package:sweeper_game/core/clock.dart';
 import 'package:sweeper_game/data/datasources/binance_ws.dart';
 import 'package:sweeper_game/data/repositories/btc_price_repository_impl.dart';
 import 'package:sweeper_game/domain/repositories/btc_price_repository.dart';
+import 'package:sweeper_settings/sweeper_settings.dart';
 
 final getIt = GetIt.instance;
 
@@ -41,6 +42,10 @@ Future<void> configureDependencies() async {
 
   getIt.registerLazySingleton<AuthRefreshNotifier>(
     () => AuthRefreshNotifier(getIt()),
+  );
+
+  getIt.registerLazySingleton<SettingsStorage>(
+    SharedPreferencesSettingsStorage.new,
   );
 
   getIt.registerLazySingleton<AppRouter>(

@@ -21,10 +21,13 @@ class MockClock extends Mock implements Clock {}
 
 class MockAuthRepository extends Mock implements AuthRepository {}
 
+class MockSettingsStorage extends Mock implements SettingsStorage {}
+
 void main() {
   late MockBtcPriceRepository btcRepo;
   late MockClock clock;
   late MockAuthRepository authRepo;
+  late MockSettingsStorage settingsStorage;
 
   setUpAll(() async {
     TestWidgetsFlutterBinding.ensureInitialized();
@@ -36,6 +39,7 @@ void main() {
     btcRepo = MockBtcPriceRepository();
     clock = MockClock();
     authRepo = MockAuthRepository();
+    settingsStorage = MockSettingsStorage();
 
     when(() => btcRepo.watchPrice()).thenAnswer((_) => const Stream.empty());
     when(() => btcRepo.connect()).thenAnswer((_) async {});
@@ -45,9 +49,16 @@ void main() {
     when(() => authRepo.authStateChanges).thenAnswer((_) => const Stream.empty());
     when(() => authRepo.currentUser).thenReturn(null);
     when(() => authRepo.waitForInitialAuthState()).thenAnswer((_) async {});
+    when(() => settingsStorage.readGridSize()).thenAnswer((_) async => 8);
+    when(() => settingsStorage.readLanguageCode()).thenAnswer((_) async => 'en');
+    when(() => settingsStorage.writeGridSize(any())).thenAnswer((_) async {});
+    when(() => settingsStorage.writeLanguageCode(any())).thenAnswer((_) async {});
   });
 
   testWidgets('GamePage renders title', (tester) async {
+    final settingsCubit = SettingsCubit(settingsStorage);
+    await settingsCubit.load();
+
     await tester.pumpWidget(
       EasyLocalization(
         supportedLocales: AppLocales.supported,
@@ -75,7 +86,7 @@ void main() {
                       ),
                     ),
                   ),
-                  BlocProvider<SettingsCubit>(create: (_) => SettingsCubit()),
+                  BlocProvider<SettingsCubit>.value(value: settingsCubit),
                   BlocProvider<AuthCubit>(
                     create: (_) => AuthCubit(
                       authRepo,

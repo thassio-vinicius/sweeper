@@ -4,6 +4,7 @@ import 'package:sweeper/core/config/app_env.dart';
 import 'package:sweeper/core/di/injection.dart';
 import 'package:sweeper/core/firebase/firebase_bootstrap.dart';
 import 'package:sweeper_l10n/sweeper_l10n.dart';
+import 'package:sweeper_settings/sweeper_settings.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,14 +13,19 @@ Future<void> main() async {
   await FirebaseBootstrap.initialize();
   await configureDependencies();
   await warmUpAuthSession();
+
+  final settingsCubit = SettingsCubit(getIt<SettingsStorage>());
+  await settingsCubit.load();
+
   runApp(
     EasyLocalization(
       supportedLocales: AppLocales.supported,
       fallbackLocale: AppLocales.fallback,
+      startLocale: AppLocales.localeFor(settingsCubit.state.languageCode),
       path: SweeperAssetLoader.translationsPath,
       assetLoader: const SweeperAssetLoader(),
       saveLocale: false,
-      child: const SweeperApp(),
+      child: SweeperApp(settingsCubit: settingsCubit),
     ),
   );
 }

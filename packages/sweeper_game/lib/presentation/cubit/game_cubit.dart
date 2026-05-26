@@ -28,6 +28,7 @@ class GameCubit extends Cubit<GameState> {
   StreamSubscription<BtcPrice>? _btcSubscription;
   StreamSubscription<int>? _countdownSubscription;
   Timer? _explosionClearTimer;
+  Timer? _slideClearTimer;
   Timer? _magicBombClearTimer;
   Timer? _magicBombBannerClearTimer;
   GameStatus? _statusBeforePause;
@@ -52,8 +53,8 @@ class GameCubit extends Cubit<GameState> {
     await _startBtcStream();
   }
 
-  void restart({GameConfig? config}) {
-    startGame(config: config);
+  Future<void> restart({GameConfig? config}) async {
+    await startGame(config: config);
   }
 
   void pause({PauseReason reason = PauseReason.manual}) {
@@ -84,7 +85,8 @@ class GameCubit extends Cubit<GameState> {
   }) {
     if (_engine == null ||
         state.status == GameStatus.gameOver ||
-        state.status == GameStatus.paused) {
+        state.status == GameStatus.paused ||
+        state.status == GameStatus.animating) {
       return;
     }
 
@@ -97,6 +99,23 @@ class GameCubit extends Cubit<GameState> {
 
     if (result.events.any((e) => e is InvalidMoveEvent)) {
       _triggerSnapBack(fromRow, fromCol);
+      return;
+    }
+
+    final hasDiscovery = result.events.any((e) => e is BombDiscoveredEvent);
+    final isGameOver = result.snapshot.phase == GamePhase.gameOver;
+
+    if (!hasDiscovery && !isGameOver) {
+      _applyResult(
+        result,
+        slideMove: (
+          fromRow: fromRow,
+          fromCol: fromCol,
+          toRow: toRow,
+          toCol: toCol,
+        ),
+      );
+      _scheduleSlideClear();
       return;
     }
 
@@ -120,6 +139,7 @@ class GameCubit extends Cubit<GameState> {
     GameEngineResult result, {
     BtcPrice? btcPrice,
     int? btcPriceDirection,
+    BoardMove? slideMove,
   }) {
     var newStatus = state.status == GameStatus.paused
         ? GameStatus.paused
@@ -131,6 +151,8 @@ class GameCubit extends Cubit<GameState> {
     var remainingPulseGeneration = state.remainingPulseGeneration;
     int? magicBombBannerWholeDollars;
     var isGameOver = result.snapshot.phase == GamePhase.gameOver;
+    BoardMove? activeSlideMove;
+    var slideGeneration = state.slideGeneration;
 
     for (final event in result.events) {
       switch (event) {
@@ -140,8 +162,12 @@ class GameCubit extends Cubit<GameState> {
             newStatus = GameStatus.animating;
             _scheduleExplosionClear();
           }
-        case BombExplodedEvent():
-          break;
+        case BombExplodedEvent(:final row, :final col):
+          if (!isGameOver && state.status != GameStatus.paused) {
+            explosionAt = (row: row, col: col);
+            newStatus = GameStatus.animating;
+            _scheduleExplosionClear();
+          }
         case GameOverEvent():
           isGameOver = true;
           newStatus = GameStatus.gameOver;
@@ -158,14 +184,22 @@ class GameCubit extends Cubit<GameState> {
       }
     }
 
+    if (slideMove != null && !isGameOver && state.status != GameStatus.paused) {
+      activeSlideMove = slideMove;
+      slideGeneration++;
+      newStatus = GameStatus.animating;
+    }
+
     if (isGameOver) {
       newStatus = GameStatus.gameOver;
       _explosionClearTimer?.cancel();
+      _slideClearTimer?.cancel();
       _magicBombClearTimer?.cancel();
       _magicBombBannerClearTimer?.cancel();
       explosionAt = null;
       magicBombAt = null;
       magicBombBannerWholeDollars = null;
+      activeSlideMove = null;
       _stopGameLoop();
     }
 
@@ -181,10 +215,13 @@ class GameCubit extends Cubit<GameState> {
         magicBombBannerWholeDollars: magicBombBannerWholeDollars,
         magicBombBannerGeneration: magicBombBannerGeneration,
         remainingPulseGeneration: remainingPulseGeneration,
+        slideMove: activeSlideMove,
+        slideGeneration: slideGeneration,
         clearSnapBack: true,
         clearExplosion: isGameOver,
         clearMagicBomb: isGameOver,
         clearMagicBombBanner: isGameOver,
+        clearSlide: isGameOver,
       ),
     );
   }
@@ -193,7 +230,7 @@ class GameCubit extends Cubit<GameState> {
     _explosionClearTimer?.cancel();
     _explosionClearTimer = Timer(const Duration(milliseconds: 800), () {
       if (isClosed) return;
-      if (state.status == GameStatus.animating) {
+      if (state.status == GameStatus.animating && state.slideMove == null) {
         final isOver = state.snapshot?.phase == GamePhase.gameOver;
         emit(
           state.copyWith(
@@ -204,6 +241,21 @@ class GameCubit extends Cubit<GameState> {
         if (isOver) {
           _stopGameLoop();
         }
+      }
+    });
+  }
+
+  void _scheduleSlideClear() {
+    _slideClearTimer?.cancel();
+    _slideClearTimer = Timer(const Duration(milliseconds: 280), () {
+      if (isClosed) return;
+      if (state.status == GameStatus.animating && state.explosionAt == null) {
+        emit(
+          state.copyWith(
+            status: GameStatus.playing,
+            clearSlide: true,
+          ),
+        );
       }
     });
   }
@@ -233,7 +285,8 @@ class GameCubit extends Cubit<GameState> {
       (_) {
         if (isClosed ||
             state.status == GameStatus.gameOver ||
-            state.status == GameStatus.paused) {
+            state.status == GameStatus.paused ||
+            state.status == GameStatus.animating) {
           return;
         }
         if (_engine?.snapshot.phase == GamePhase.gameOver) {
@@ -260,6 +313,7 @@ class GameCubit extends Cubit<GameState> {
 
   void _stopGameLoop() {
     _explosionClearTimer?.cancel();
+    _slideClearTimer?.cancel();
     _magicBombClearTimer?.cancel();
     _magicBombBannerClearTimer?.cancel();
     _countdownSubscription?.cancel();
@@ -284,20 +338,11 @@ class GameCubit extends Cubit<GameState> {
 
     final canProcessEngine = _engine != null &&
         state.status != GameStatus.gameOver &&
+        state.status != GameStatus.paused &&
+        state.status != GameStatus.animating &&
         _engine!.snapshot.phase != GamePhase.gameOver;
 
     if (!canProcessEngine) {
-      emit(
-        state.copyWith(
-          btcPrice: price,
-          btcPriceDirection: direction,
-          clearError: true,
-        ),
-      );
-      return;
-    }
-
-    if (state.status == GameStatus.paused) {
       emit(
         state.copyWith(
           btcPrice: price,

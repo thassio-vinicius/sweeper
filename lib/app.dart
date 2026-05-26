@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sweeper/core/di/injection.dart';
 import 'package:sweeper/core/router/app_router.dart';
+import 'package:sweeper/widgets/locale_sync.dart';
 import 'package:sweeper_auth/domain/repositories/auth_repository.dart';
 import 'package:sweeper_auth/presentation/cubit/auth_cubit.dart';
 import 'package:sweeper_auth/session/auth_session.dart';
@@ -11,7 +12,9 @@ import 'package:sweeper_settings/sweeper_settings.dart';
 import 'package:sweeper_theme/app_theme.dart';
 
 class SweeperApp extends StatelessWidget {
-  const SweeperApp({super.key});
+  const SweeperApp({super.key, required this.settingsCubit});
+
+  final SettingsCubit settingsCubit;
 
   @override
   Widget build(BuildContext context) {
@@ -23,18 +26,20 @@ class SweeperApp extends StatelessWidget {
             clock: getIt(),
           ),
         ),
-        BlocProvider(create: (_) => SettingsCubit()),
+        BlocProvider.value(value: settingsCubit),
         BlocProvider(
           create: (_) => AuthCubit(getIt<AuthRepository>(), getIt<AuthSession>()),
         ),
       ],
-      child: MaterialApp.router(
-        title: 'appTitle'.tr(),
-        theme: AppTheme.dark,
-        routerConfig: getIt<AppRouter>().router,
-        localizationsDelegates: context.localizationDelegates,
-        supportedLocales: context.supportedLocales,
-        locale: context.locale,
+      child: LocaleSync(
+        child: MaterialApp.router(
+          title: 'appTitle'.tr(),
+          theme: AppTheme.dark,
+          routerConfig: getIt<AppRouter>().router,
+          localizationsDelegates: context.localizationDelegates,
+          supportedLocales: context.supportedLocales,
+          locale: context.locale,
+        ),
       ),
     );
   }

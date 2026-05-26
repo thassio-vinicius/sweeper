@@ -31,7 +31,12 @@ dart run melos bootstrap
 cp .env.example .env
 # Values from Firebase Console or `flutterfire configure`
 
-# 4. Run on a device or simulator (Android / iOS only)
+# 4. Add Firebase native config (gitignored — not in the repo)
+cp android/app/google-services.json.example android/app/google-services.json
+cp ios/Runner/GoogleService-Info.plist.example ios/Runner/GoogleService-Info.plist
+# Replace placeholders with values from Firebase Console → Project settings → Your apps
+
+# 5. Run on a device or simulator (Android / iOS only)
 flutter run
 ```
 
@@ -56,7 +61,7 @@ flutter run
 
 - **Pause button** — Pauses the game and shows a pause overlay.
 - **Settings (gear)** — Opens the bottom sheet (board size, auth). The game pauses silently in the background.
-- **Board sizes** — 8×8, 10×10 (default), or 12×12 via Settings.
+- **Board sizes** — 8×8, 10×10 (default), or 12×12 via Settings. Choice is **persisted** across app restarts.
 
 ### Authentication & guest mode
 
@@ -153,16 +158,30 @@ Mapping to the original code-challenge PDF (core + bonus items).
 
 | PDF bonus | Implementation |
 |-----------|----------------|
-| Fancy animations | Custom explosion/magic-bomb/game-over animations |
+| Fancy animations | Discovery/timer explosions, valid-move slide, snap-back, magic-bomb pulse, game-over sequence |
 | Social login | Google Sign-In via Firebase Auth (`sweeper_auth`) |
 | Board size setting | `sweeper_settings` + Settings sheet (8×8, 10×10, 12×12) |
-| Internationalization | `sweeper_l10n` + **easy_localization** — English, Portuguese, Spanish |
+| Internationalization | `sweeper_l10n` + **easy_localization** — English, Portuguese, Spanish; **in-app language picker** in Settings (persisted) |
 
 ### Intentional notes
 
 - **Google only** for social auth (PDF mentions social login; Apple/Facebook not implemented).
 - **Guest mode** is an Android-only product extension for easier local testing; not in the PDF.
 - **Magic bomb cap** — remaining hidden bombs cannot exceed the **initial** bomb count for the current board (silent ignore when at cap).
+
+#### Magic bomb trigger (deliberate deviation from literal PDF wording)
+
+The PDF says: *“Every moment the BTC price is divisible by 5.”* A literal reading would re-trigger on **every tick** while the integer price stays on a multiple of 5 (e.g. `$95,050` for many seconds), which can spam bombs even with a cap.
+
+We instead fire when the **displayed whole-dollar price lands on** a value ending in **0** or **5** — i.e. the rounded UI price **changes** to a new divisible-by-5 integer (`BtcPrice.landedOnDivisibleWhole` in `packages/sweeper_game/lib/domain/entities/btc_price.dart`). Same feed and cap rules; one spawn per distinct landing, with dedupe via `lastMagicBombTriggerPrice`.
+
+| PDF literal | This implementation |
+|-------------|---------------------|
+| Triggers on every tick while price ÷ 5 | Triggers once when whole dollars **land on** 0 or 5 |
+| Can spam if price sits on e.g. $95,050 | Ignores repeated ticks at the same whole dollar |
+| Jump from $95,049 → $95,051 skips $95,050 | No spawn (did not land on a divisible value) |
+
+See `game_engine_test.dart` for landing, skip, cap, and dedupe cases.
 
 ---
 
@@ -218,7 +237,7 @@ flutter run -d android
 flutter build apk --debug
 ```
 
-**Google Sign-In (debug):** add your machine’s **debug SHA-1** to the Firebase Android app (`google-services.json`). Other developers need their own SHA-1 registered or Sign-In will fail on their devices.
+**Google Sign-In (debug):** add your machine’s **debug SHA-1** to the Firebase Android app. Download or copy `google-services.json` locally (see Firebase setup below). Other developers need their own SHA-1 registered or Sign-In will fail on their devices.
 
 **Guest mode:** with Firebase configured, the login screen shows **Play as guest** on Android only.
 
@@ -229,24 +248,38 @@ flutter run -d ios
 # or open ios/Runner.xcworkspace in Xcode
 ```
 
-Ensure `GoogleService-Info.plist` is in `ios/Runner/` and the URL scheme from Firebase is in `Info.plist`. Guest mode is **not** offered on iOS.
+Ensure `GoogleService-Info.plist` is in `ios/Runner/` (copy from `.example` or Firebase Console) and the URL scheme from Firebase is in `Info.plist`. Guest mode is **not** offered on iOS.
 
 ---
 
 ## Firebase & secrets
 
-Firebase API keys and OAuth client IDs **must not** be committed. This repo uses a **gitignored `.env`** at the repo root (see `.env.example`).
+Firebase API keys and OAuth client IDs **must not** be committed in `.env`. Native Firebase config files are also **gitignored** so reviewers use their own Firebase project locally.
 
-### Local development (`.env`)
+| File | In repo? | Purpose |
+|------|----------|---------|
+| `.env` | No (gitignored) | Flutter bootstrap via `flutter_dotenv` |
+| `android/app/google-services.json` | No (gitignored) | Android Firebase SDK |
+| `ios/Runner/GoogleService-Info.plist` | No (gitignored) | iOS Firebase SDK |
+| `*.example` templates | Yes | Copy and fill from Firebase Console |
 
-1. `cp .env.example .env`
-2. Fill in values from [Firebase Console](https://console.firebase.google.com) → Project settings → Your apps, or run [`flutterfire configure`](https://firebase.google.com/docs/flutter/setup) and copy the generated values into `.env`.
-3. Add native config files:
-   - `google-services.json` → `android/app/`
-   - `GoogleService-Info.plist` → `ios/Runner/`
-4. Set `GOOGLE_SERVER_CLIENT_ID` (OAuth 2.0 **Web** client ID from Firebase → Authentication → Google).
+### Local development setup
+
+1. `cp .env.example .env` — fill from Firebase Console or [`flutterfire configure`](https://firebase.google.com/docs/flutter/setup).
+2. Copy native config templates and replace placeholders:
+   ```bash
+   cp android/app/google-services.json.example android/app/google-services.json
+   cp ios/Runner/GoogleService-Info.plist.example ios/Runner/GoogleService-Info.plist
+   ```
+   Or download fresh files from [Firebase Console](https://console.firebase.google.com) → Project settings → Your apps.
+3. Set `GOOGLE_SERVER_CLIENT_ID` in `.env` (OAuth 2.0 **Web** client ID from Firebase → Authentication → Google).
+4. **Android Sign-In:** register your debug **SHA-1** in the Firebase Android app.
 
 At runtime: `AppEnv.load()` → `FirebaseBootstrap.initialize()` builds `FirebaseOptions` from `.env`. Missing or invalid configuration fails at startup.
+
+### Why native files are gitignored
+
+This is a code-challenge repo meant to be cloned and run locally by reviewers with **their own** Firebase project. Keeping `google-services.json` and `GoogleService-Info.plist` out of git avoids tying the public repo to one Firebase project. The files are client-side config (not server secrets), but gitignoring them is still reasonable for reviewer flexibility.
 
 ### CI / production alternatives
 
@@ -264,10 +297,12 @@ At runtime: `AppEnv.load()` → `FirebaseBootstrap.initialize()` builds `Firebas
 
 1. Create a project at [Firebase Console](https://console.firebase.google.com).
 2. Register **Android** and **iOS** apps (bundle ID / application ID must match the project).
-3. Download `google-services.json` → `android/app/`.
-4. Download `GoogleService-Info.plist` → `ios/Runner/`.
-5. Add **SHA-1** (debug and release) for Android OAuth.
-6. Copy Firebase app values into `.env` (see `.env.example`).
+3. Copy templates → real files (or download from Console):
+   - `android/app/google-services.json.example` → `android/app/google-services.json`
+   - `ios/Runner/GoogleService-Info.plist.example` → `ios/Runner/GoogleService-Info.plist`
+4. Add **SHA-1** (debug and release) for Android OAuth.
+5. Copy Firebase app values into `.env` (see `.env.example`).
+6. Add the iOS URL scheme from `REVERSED_CLIENT_ID` to `ios/Runner/Info.plist` if not already present.
 
 ---
 
@@ -281,7 +316,7 @@ At runtime: `AppEnv.load()` → `FirebaseBootstrap.initialize()` builds `Firebas
 
 ## Testing
 
-28 tests across the monorepo (game engine rules, cubit, auth session, widget smoke test):
+44 tests across the monorepo (game engine, cubit, settings, auth, routing, widgets):
 
 ```bash
 dart run melos test

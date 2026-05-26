@@ -49,13 +49,39 @@ Future<bool?> showGameSettingsSheet(
                       child: ChoiceChip(
                         label: Text('${size}x$size'),
                         selected: selected,
-                        onSelected: (_) {
-                          context.read<SettingsCubit>().setGridSize(size);
+                        onSelected: (_) async {
+                          await context.read<SettingsCubit>().setGridSize(size);
+                          if (!sheetContext.mounted) return;
                           final config = GameConfig.fromGridSize(size);
-                          context.read<GameCubit>().restart(config: config);
+                          await context.read<GameCubit>().restart(config: config);
+                          if (!sheetContext.mounted) return;
                           Navigator.pop(sheetContext);
                         },
                       ),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                Text(
+                  'language'.tr(),
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Wrap(
+                  spacing: AppSpacing.sm,
+                  runSpacing: AppSpacing.sm,
+                  children: AppLocales.supportedLanguageCodes.map((code) {
+                    final selected = settings.languageCode == code;
+                    return ChoiceChip(
+                      label: Text(AppLocales.displayName(code)),
+                      selected: selected,
+                      onSelected: (_) async {
+                        await context
+                            .read<SettingsCubit>()
+                            .setLanguageCode(code);
+                        if (!sheetContext.mounted) return;
+                        await sheetContext.setLocale(AppLocales.localeFor(code));
+                      },
                     );
                   }).toList(),
                 ),

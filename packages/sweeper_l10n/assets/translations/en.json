@@ -32,5 +32,6 @@
   "pause": "Pause",
   "resume": "Resume",
   "paused": "Paused",
-  "magicBombBanner": "BTC {price} — Magic bomb!"
+  "magicBombBanner": "BTC {price} — Magic bomb!",
+  "language": "Language"
 }

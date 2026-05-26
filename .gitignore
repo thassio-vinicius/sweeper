@@ -2,6 +2,10 @@
 .env
 env.json
 lib/firebase_options.dart
+
+# Firebase native config — download per machine from Firebase Console (see README).
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
 *.class
 *.lock
 *.log
