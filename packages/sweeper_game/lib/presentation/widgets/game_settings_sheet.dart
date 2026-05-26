@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sweeper_l10n/sweeper_l10n.dart';
 import 'package:sweeper_auth/presentation/cubit/auth_cubit.dart';
 import 'package:sweeper_auth/presentation/widgets/auth_profile_section.dart';
 import 'package:sweeper_auth/presentation/widgets/guest_session_section.dart';
 import 'package:sweeper_game/domain/entities/game_config.dart';
 import 'package:sweeper_game/presentation/cubit/game_cubit.dart';
 import 'package:sweeper_game/presentation/cubit/pause_reason.dart';
-import 'package:sweeper_l10n/sweeper_l10n.dart';
 import 'package:sweeper_settings/sweeper_settings.dart';
 import 'package:sweeper_theme/app_tokens.dart';
 
@@ -14,7 +14,6 @@ Future<bool?> showGameSettingsSheet(
   BuildContext context, {
   required GameCubit gameCubit,
 }) {
-  final l10n = AppLocalizations.of(context);
   gameCubit.pause(reason: PauseReason.settings);
 
   return showModalBottomSheet<bool>(
@@ -33,12 +32,12 @@ Future<bool?> showGameSettingsSheet(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  l10n.settings,
+                  'settings'.tr(),
                   style: Theme.of(context).textTheme.headlineLarge,
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 Text(
-                  l10n.boardSize,
+                  'boardSize'.tr(),
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: AppSpacing.sm),

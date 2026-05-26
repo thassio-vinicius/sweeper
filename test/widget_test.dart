@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sweeper_l10n/sweeper_l10n.dart';
 import 'package:sweeper_core/clock.dart';
 import 'package:sweeper_auth/session/auth_session.dart';
@@ -25,6 +26,12 @@ void main() {
   late MockClock clock;
   late MockAuthRepository authRepo;
 
+  setUpAll(() async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    SharedPreferences.setMockInitialValues({});
+    await EasyLocalization.ensureInitialized();
+  });
+
   setUp(() {
     btcRepo = MockBtcPriceRepository();
     clock = MockClock();
@@ -40,43 +47,54 @@ void main() {
     when(() => authRepo.waitForInitialAuthState()).thenAnswer((_) async {});
   });
 
-  Widget buildApp(Widget child) {
-    return MaterialApp(
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: MultiBlocProvider(
-        providers: [
-          BlocProvider<GameCubit>(
-            create: (_) => GameCubit(
-              btcPriceRepository: btcRepo,
-              clock: clock,
-              config: const GameConfig(
-                gridSize: 8,
-                initialBombCount: 5,
-                emptyCellBuffer: 5,
+  testWidgets('GamePage renders title', (tester) async {
+    await tester.pumpWidget(
+      EasyLocalization(
+        supportedLocales: AppLocales.supported,
+        fallbackLocale: AppLocales.fallback,
+        startLocale: AppLocales.fallback,
+        path: SweeperAssetLoader.translationsPath,
+        assetLoader: const SweeperAssetLoader(),
+        saveLocale: false,
+        child: Builder(
+          builder: (context) {
+            return MaterialApp(
+              localizationsDelegates: context.localizationDelegates,
+              supportedLocales: context.supportedLocales,
+              locale: context.locale,
+              home: MultiBlocProvider(
+                providers: [
+                  BlocProvider<GameCubit>(
+                    create: (_) => GameCubit(
+                      btcPriceRepository: btcRepo,
+                      clock: clock,
+                      config: const GameConfig(
+                        gridSize: 8,
+                        initialBombCount: 5,
+                        emptyCellBuffer: 5,
+                      ),
+                    ),
+                  ),
+                  BlocProvider<SettingsCubit>(create: (_) => SettingsCubit()),
+                  BlocProvider<AuthCubit>(
+                    create: (_) => AuthCubit(
+                      authRepo,
+                      AuthSession(
+                        authRepository: authRepo,
+                        accessConfig: const AppAccessConfig(
+                          androidGuestModeEnabled: false,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+                child: const GamePage(),
               ),
-            ),
-          ),
-          BlocProvider<SettingsCubit>(create: (_) => SettingsCubit()),
-          BlocProvider<AuthCubit>(
-            create: (_) => AuthCubit(
-              authRepo,
-              AuthSession(
-                authRepository: authRepo,
-                accessConfig: const AppAccessConfig(
-                  androidGuestModeEnabled: false,
-                ),
-              ),
-            ),
-          ),
-        ],
-        child: child,
+            );
+          },
+        ),
       ),
     );
-  }
-
-  testWidgets('GamePage renders title', (tester) async {
-    await tester.pumpWidget(buildApp(const GamePage()));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 

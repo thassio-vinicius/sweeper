@@ -51,7 +51,7 @@ class StatCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  label,
+                  AppText.labelCaps(label),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTypography.statLabel,

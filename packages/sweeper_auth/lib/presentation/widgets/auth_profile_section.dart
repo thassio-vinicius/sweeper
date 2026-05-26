@@ -19,13 +19,12 @@ class AuthProfileSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(l10n.account, style: theme.textTheme.titleMedium),
+        Text('account'.tr(), style: theme.textTheme.titleMedium),
         const SizedBox(height: AppSpacing.sm),
         GameSurfaceCard(
           accentColor: AppColors.springGreen,
@@ -81,7 +80,7 @@ class AuthProfileSection extends StatelessWidget {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : Icon(Icons.logout, size: AppSizes.iconMd),
-                  label: Text(l10n.signOut),
+                  label: Text('signOut'.tr()),
                 ),
               ),
             ],

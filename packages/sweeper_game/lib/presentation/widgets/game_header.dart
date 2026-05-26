@@ -18,7 +18,6 @@ class GameHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
     return Row(
       children: [
         Expanded(
@@ -26,11 +25,11 @@ class GameHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                l10n.reversed,
+                AppText.labelCaps('reversed'.tr()),
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               Text(
-                l10n.minesweeper,
+                'minesweeper'.tr(),
                 style: Theme.of(context).textTheme.headlineLarge,
               ),
             ],
@@ -38,7 +37,7 @@ class GameHeader extends StatelessWidget {
         ),
         IconButton(
           onPressed: onPauseToggle,
-          tooltip: isPaused ? l10n.resume : l10n.pause,
+          tooltip: isPaused ? 'resume'.tr() : 'pause'.tr(),
           icon: Icon(
             isPaused ? Icons.play_arrow : Icons.pause,
             color: AppColors.cyan,

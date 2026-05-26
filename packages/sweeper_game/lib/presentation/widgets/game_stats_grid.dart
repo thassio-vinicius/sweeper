@@ -8,11 +8,9 @@ class GameStatsGrid extends StatelessWidget {
   const GameStatsGrid({
     super.key,
     required this.state,
-    required this.l10n,
   });
 
   final GameState state;
-  final AppLocalizations l10n;
 
   @override
   Widget build(BuildContext context) {
@@ -27,20 +25,20 @@ class GameStatsGrid extends StatelessWidget {
       childAspectRatio: 3.0,
       children: [
         StatCard(
-          label: l10n.discovered,
+          label: 'discovered'.tr(),
           icon: Icons.gps_fixed,
           value: '${state.discoveredCount}',
           valueColor: AppColors.springGreen,
         ),
         StatCard(
-          label: l10n.remaining,
+          label: 'remaining'.tr(),
           icon: Icons.warning_amber_rounded,
           value: '${state.remainingCount}',
           valueColor: AppColors.coralRed,
           pulseGeneration: state.remainingPulseGeneration,
         ),
         StatCard(
-          label: l10n.btcLive,
+          label: 'btcLive'.tr(),
           icon: Icons.currency_bitcoin,
           value: formatBtcPrice(state.btcPrice?.priceUsd),
           valueColor: AppColors.sun,
@@ -52,7 +50,7 @@ class GameStatsGrid extends StatelessWidget {
               : AppColors.springGreen,
         ),
         StatCard(
-          label: l10n.nextBlast,
+          label: 'nextBlast'.tr(),
           icon: Icons.timer_outlined,
           value: formatTimer(state.secondsUntilBlast),
           valueColor: AppColors.cyan,

@@ -57,8 +57,6 @@ class _GameOverPageState extends State<GameOverPage>
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Stack(
@@ -77,7 +75,7 @@ class _GameOverPageState extends State<GameOverPage>
                       shaderCallback: (bounds) =>
                           AppGradients.gradientHeadline.createShader(bounds),
                       child: Text(
-                        l10n.gameOverTitle,
+                        'gameOverTitle'.tr(),
                         style: AppTypography.displayHeadline.copyWith(
                           shadows: AppShadows.titleTextGlow,
                         ),
@@ -87,7 +85,7 @@ class _GameOverPageState extends State<GameOverPage>
                   const Spacer(),
                   GameOverAnimation(
                     discoveredCount: widget.discoveredCount,
-                    label: l10n.discoveredBombs(widget.discoveredCount),
+                    label: 'discoveredBombs'.plural(widget.discoveredCount),
                   ),
                   const Spacer(),
                   SlideTransition(
@@ -105,7 +103,7 @@ class _GameOverPageState extends State<GameOverPage>
                             context.go(AppPaths.home);
                           },
                           style: AppButtons.filledCyan,
-                          child: Text(l10n.playAgain),
+                          child: Text('playAgain'.tr()),
                         ),
                       ),
                     ),

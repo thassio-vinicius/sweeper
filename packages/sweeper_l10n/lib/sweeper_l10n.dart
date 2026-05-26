@@ -1,2 +1,4 @@
+export 'package:easy_localization/easy_localization.dart';
 
-export 'l10n/app_localizations.dart';
+export 'app_locales.dart';
+export 'sweeper_asset_loader.dart';

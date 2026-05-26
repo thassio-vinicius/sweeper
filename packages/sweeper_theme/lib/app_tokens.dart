@@ -1,3 +1,4 @@
+export 'app_text.dart';
 export 'tokens/asset_tokens.dart';
 export 'tokens/blur_tokens.dart';
 export 'tokens/color_tokens.dart';

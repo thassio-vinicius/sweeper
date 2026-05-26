@@ -13,8 +13,6 @@ class GameTitleHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(
@@ -39,7 +37,7 @@ class GameTitleHero extends StatelessWidget {
             shaderCallback: (bounds) =>
                 AppGradients.gradientEyebrow.createShader(bounds),
             child: Text(
-              l10n.reversed,
+              AppText.labelCaps('reversed'.tr()),
               style: AppTypography.eyebrow,
             ),
           ),
@@ -49,7 +47,7 @@ class GameTitleHero extends StatelessWidget {
             shaderCallback: (bounds) =>
                 AppGradients.gradientHeadline.createShader(bounds),
             child: Text(
-              l10n.minesweeper,
+              'minesweeper'.tr(),
               textAlign: TextAlign.center,
               style: AppTypography.displayHeadline.copyWith(
                 shadows: AppShadows.titleTextGlow,
@@ -60,6 +58,53 @@ class GameTitleHero extends StatelessWidget {
           board,
         ],
       ),
+    );
+  }
+}
+
+class LoginFeatureGuide extends StatelessWidget {
+  const LoginFeatureGuide({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        _FeatureRow(
+          color: AppColors.sun,
+          icon: Icons.currency_bitcoin,
+          label: 'loginFeatureBtc'.tr(),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        _FeatureRow(
+          color: AppColors.springGreen,
+          icon: Icons.auto_awesome,
+          label: 'loginFeatureMagic'.tr(),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        _FeatureRow(
+          color: AppColors.coralRed,
+          icon: Icons.timer_outlined,
+          label: 'loginFeatureBlast'.tr(),
+        ),
+      ],
+    );
+  }
+}
+
+class GuestPlayButton extends StatelessWidget {
+  const GuestPlayButton({
+    super.key,
+    required this.onPressed,
+  });
+
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton(
+      onPressed: onPressed,
+      style: AppButtons.outlined,
+      child: Text('playAsGuest'.tr()),
     );
   }
 }
@@ -75,6 +120,7 @@ class _TitleGlowIcon extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         gradient: AppGradients.titleIconGlow(AppColors.coralRed),
+        boxShadow: AppShadows.titleIcon(accent: AppColors.coralRed),
       ),
       child: Center(
         child: Container(
@@ -82,10 +128,7 @@ class _TitleGlowIcon extends StatelessWidget {
           height: AppSizes.titleGlowInner,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: AppColors.surface,
-            border: Border.all(
-              color: AppColors.coralRed.withValues(alpha: AppOpacity.accentBorder),
-            ),
+            color: AppColors.surface.withValues(alpha: AppOpacity.surfaceStrong),
             boxShadow: AppShadows.titleIcon(accent: AppColors.coralRed),
           ),
           child: Icon(
@@ -99,112 +142,39 @@ class _TitleGlowIcon extends StatelessWidget {
   }
 }
 
-class LoginFeatureGuide extends StatelessWidget {
-  const LoginFeatureGuide({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.surface.withValues(alpha: AppOpacity.surfaceSoft),
-        borderRadius: BorderRadius.circular(AppRadii.md),
-        border: Border.all(color: AppColors.surfaceBorder),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _FeatureRow(
-            icon: Icons.currency_bitcoin,
-            label: l10n.loginFeatureBtc,
-            color: AppColors.sun,
-          ),
-          const Divider(height: 1, color: AppColors.surfaceBorder),
-          _FeatureRow(
-            icon: Icons.auto_awesome,
-            label: l10n.loginFeatureMagic,
-            color: AppColors.cyan,
-          ),
-          const Divider(height: 1, color: AppColors.surfaceBorder),
-          _FeatureRow(
-            icon: Icons.timer_outlined,
-            label: l10n.loginFeatureBlast,
-            color: AppColors.coralRed,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _FeatureRow extends StatelessWidget {
   const _FeatureRow({
+    required this.color,
     required this.icon,
     required this.label,
-    required this.color,
   });
 
+  final Color color;
   final IconData icon;
   final String label;
-  final Color color;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            width: AppSizes.featureIconBox,
-            height: AppSizes.featureIconBox,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: AppOpacity.accentTintSoft),
-              borderRadius: BorderRadius.circular(AppRadii.sm),
-              border: Border.all(
-                color: color.withValues(alpha: AppOpacity.accentBorderMuted),
-              ),
-            ),
-            child: Icon(icon, size: AppSizes.iconSm, color: color),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: AppSizes.featureIconBox,
+          height: AppSizes.featureIconBox,
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: AppOpacity.accentTintSoft),
+            borderRadius: BorderRadius.circular(AppRadii.sm),
           ),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(
-            child: Text(
-              label,
-              style: AppTypography.bodyFeature,
-            ),
+          child: Icon(icon, size: AppSizes.iconSm, color: color),
+        ),
+        const SizedBox(width: AppSpacing.md),
+        Expanded(
+          child: Text(
+            label,
+            style: AppTypography.bodyFeature,
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class GuestPlayButton extends StatelessWidget {
-  const GuestPlayButton({
-    super.key,
-    required this.onPressed,
-  });
-
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-
-    return SizedBox(
-      width: double.infinity,
-      child: OutlinedButton(
-        onPressed: onPressed,
-        style: AppButtons.outlined,
-        child: Text(l10n.playAsGuest),
-      ),
+        ),
+      ],
     );
   }
 }

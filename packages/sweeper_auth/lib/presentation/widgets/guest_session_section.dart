@@ -21,13 +21,12 @@ class GuestSessionSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(l10n.account, style: theme.textTheme.titleMedium),
+        Text('account'.tr(), style: theme.textTheme.titleMedium),
         const SizedBox(height: AppSpacing.sm),
         GameSurfaceCard(
           accentColor: AppColors.sun,
@@ -60,14 +59,14 @@ class GuestSessionSection extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          l10n.guestModeTitle,
+                          'guestModeTitle'.tr(),
                           style: theme.textTheme.labelLarge?.copyWith(
                             color: AppColors.textPrimary,
                             fontWeight: AppTypography.fontWeightSemibold,
                           ),
                         ),
                         Text(
-                          l10n.guestModeHint,
+                          'guestModeHint'.tr(),
                           style: theme.textTheme.bodySmall,
                         ),
                       ],
@@ -86,7 +85,7 @@ class GuestSessionSection extends StatelessWidget {
                 child: OutlinedButton(
                   onPressed: isEndingSession ? null : onEndGuestSession,
                   style: AppButtons.signOut,
-                  child: Text(l10n.endGuestSession),
+                  child: Text('endGuestSession'.tr()),
                 ),
               ),
             ],

@@ -13,8 +13,6 @@ class GamePauseOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-
     return ColoredBox(
       color: AppColors.background.withValues(alpha: 0.75),
       child: Center(
@@ -28,14 +26,14 @@ class GamePauseOverlay extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.md),
             Text(
-              l10n.paused,
+              'paused'.tr(),
               style: Theme.of(context).textTheme.headlineLarge,
             ),
             const SizedBox(height: AppSpacing.lg),
             FilledButton.icon(
               onPressed: onResume,
               icon: const Icon(Icons.play_arrow),
-              label: Text(l10n.resume),
+              label: Text('resume'.tr()),
               style: AppButtons.filledCyan,
             ),
           ],

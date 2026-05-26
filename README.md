@@ -86,7 +86,7 @@ sweeper/                          ← App shell (android/, ios/, lib/)
 ├── packages/
 │   ├── sweeper_core/             ← Failures, Clock, AppPaths
 │   ├── sweeper_theme/            ← Design tokens, AppTheme, shared widgets + SVG assets
-│   ├── sweeper_l10n/             ← ARB files + generated localizations
+│   ├── sweeper_l10n/             ← JSON translations + easy_localization loader
 │   ├── sweeper_auth/             ← Firebase/Google auth, session, login UI
 │   ├── sweeper_settings/         ← Board-size preferences (SettingsCubit)
 │   └── sweeper_game/             ← Game domain, data, presentation
@@ -157,7 +157,7 @@ Mapping to the original code-challenge PDF (core + bonus items).
 | Fancy animations | Custom explosion/magic-bomb/game-over animations |
 | Social login | Google Sign-In via Firebase Auth (`sweeper_auth`) |
 | Board size setting | `sweeper_settings` + Settings sheet (8×8, 10×10, 12×12) |
-| Internationalization | `sweeper_l10n` — English, Portuguese, Spanish |
+| Internationalization | `sweeper_l10n` + **easy_localization** — English, Portuguese, Spanish |
 
 ### Intentional notes
 
@@ -188,7 +188,7 @@ Mapping to the original code-challenge PDF (core + bonus items).
 | `firebase_auth`, `google_sign_in` | `sweeper_auth` | Google Sign-In |
 | `flutter_svg` | `sweeper_theme` | Google logo asset |
 | `equatable` | game, auth, settings | Value equality |
-| `intl` | `sweeper_l10n` | Localization formatting |
+| `easy_localization` | App + `sweeper_l10n` | `.tr()` strings, JSON translations |
 
 ---
 
@@ -200,11 +200,10 @@ All commands run from the **repo root**:
 dart run melos bootstrap      # pub get + link path packages (run after clone or pubspec changes)
 dart run melos analyze        # dart/flutter analyze in every package
 dart run melos test             # flutter test in packages that have test/
-dart run melos run gen-l10n     # regenerate sweeper_l10n from ARB files
 dart run melos run format       # dart format all packages
 ```
 
-After editing ARB files in `packages/sweeper_l10n/lib/l10n/`, run `gen-l10n` before committing generated Dart.
+Edit translation strings in `packages/sweeper_l10n/assets/translations/*.json`. Use `'key'.tr()` in widgets — no `AppLocalizations.of(context)` boilerplate. Stat labels and callouts apply casing via `AppText.labelCaps()` / `AppText.calloutCaps()` at display time, not in the JSON files.
 
 **Single-package work** — you can also `cd packages/sweeper_game && flutter test`.
 

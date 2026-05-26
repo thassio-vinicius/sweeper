@@ -16,7 +16,6 @@ class GoogleSignInButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
     final enabled = !isLoading && onPressed != null;
 
     return Material(
@@ -51,10 +50,10 @@ class GoogleSignInButton extends StatelessWidget {
                     ),
                   )
                 else
-                  GoogleLogo(semanticsLabel: l10n.semanticsGoogleLogo),
+                  GoogleLogo(semanticsLabel: 'semanticsGoogleLogo'.tr()),
                 const SizedBox(width: AppSpacing.md),
                 Text(
-                  l10n.signInWithGoogle,
+                  'signInWithGoogle'.tr(),
                   style: AppTypography.externalButtonLabel,
                 ),
               ],

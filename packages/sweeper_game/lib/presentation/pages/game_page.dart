@@ -38,8 +38,6 @@ class _GamePageState extends State<GamePage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-
     return BlocConsumer<GameCubit, GameState>(
       listenWhen: (prev, curr) =>
           (curr.status == GameStatus.gameOver &&
@@ -56,9 +54,9 @@ class _GamePageState extends State<GamePage> {
         if (state.errorMessage != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(l10n.connectionError),
+              content: Text('connectionError'.tr()),
               action: SnackBarAction(
-                label: l10n.retry,
+                label: 'retry'.tr(),
                 onPressed: () =>
                     context.read<GameCubit>().retryConnection(),
               ),
@@ -105,7 +103,7 @@ class _GamePageState extends State<GamePage> {
                               onSettings: () => _openSettings(cubit),
                             ),
                             const SizedBox(height: AppSpacing.lg),
-                            GameStatsGrid(state: state, l10n: l10n),
+                            GameStatsGrid(state: state),
                             const SizedBox(height: AppSpacing.lg),
                             BoardGrid(
                               board: snapshot.board,
@@ -141,7 +139,7 @@ class _GamePageState extends State<GamePage> {
                             const SizedBox(height: AppSpacing.md),
                             Center(
                               child: Text(
-                                l10n.footerHint,
+                                'footerHint'.tr(),
                                 style: Theme.of(context).textTheme.bodySmall,
                                 textAlign: TextAlign.center,
                               ),
@@ -164,9 +162,13 @@ class _GamePageState extends State<GamePage> {
                             child: MagicBombBanner(
                               key: ValueKey(state.magicBombBannerGeneration),
                               generation: state.magicBombBannerGeneration,
-                              message: l10n.magicBombBanner(
-                                formatWholeDollars(
-                                  state.magicBombBannerWholeDollars!,
+                              message: AppText.calloutCaps(
+                                'magicBombBanner'.tr(
+                                  namedArgs: {
+                                    'price': formatWholeDollars(
+                                      state.magicBombBannerWholeDollars!,
+                                    ),
+                                  },
                                 ),
                               ),
                             ),
