@@ -108,7 +108,7 @@ void main() {
               fromRow: emptyRow!,
               fromCol: emptyCol!,
               toRow: emptyRow,
-              toCol: emptyCol! + 1 < config.gridSize ? emptyCol + 1 : emptyCol,
+              toCol: emptyCol + 1 < config.gridSize ? emptyCol + 1 : emptyCol,
             )
             .events,
         contains(isA<InvalidMoveEvent>()),
