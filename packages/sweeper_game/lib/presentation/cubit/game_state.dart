@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:sweeper_game/domain/entities/game_entities.dart';
+import 'package:sweeper_game/presentation/cubit/pause_reason.dart';
 
 enum GameStatus {
   initial,
@@ -13,6 +14,7 @@ enum GameStatus {
 class GameState extends Equatable {
   const GameState({
     this.status = GameStatus.initial,
+    this.pauseReason = PauseReason.none,
     this.snapshot,
     this.btcPrice,
     this.btcPriceDirection = 0,
@@ -28,6 +30,7 @@ class GameState extends Equatable {
   });
 
   final GameStatus status;
+  final PauseReason pauseReason;
   final GameSnapshot? snapshot;
   final BtcPrice? btcPrice;
   final int btcPriceDirection;
@@ -43,12 +46,16 @@ class GameState extends Equatable {
 
   bool get isInteractive => status == GameStatus.playing;
 
+  bool get showPauseOverlay =>
+      status == GameStatus.paused && pauseReason == PauseReason.manual;
+
   int get discoveredCount => snapshot?.discoveredBombCount ?? 0;
   int get remainingCount => snapshot?.remainingHiddenBombs ?? 0;
   int get secondsUntilBlast => snapshot?.secondsUntilNextBlast ?? 10;
 
   GameState copyWith({
     GameStatus? status,
+    PauseReason? pauseReason,
     GameSnapshot? snapshot,
     BtcPrice? btcPrice,
     int? btcPriceDirection,
@@ -69,6 +76,7 @@ class GameState extends Equatable {
   }) {
     return GameState(
       status: status ?? this.status,
+      pauseReason: pauseReason ?? this.pauseReason,
       snapshot: snapshot ?? this.snapshot,
       btcPrice: btcPrice ?? this.btcPrice,
       btcPriceDirection: btcPriceDirection ?? this.btcPriceDirection,
@@ -91,6 +99,7 @@ class GameState extends Equatable {
   @override
   List<Object?> get props => [
         status,
+        pauseReason,
         snapshot,
         btcPrice,
         btcPriceDirection,

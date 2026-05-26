@@ -3,8 +3,14 @@ import 'dart:math';
 import 'package:sweeper_game/domain/entities/game_config.dart';
 import 'package:sweeper_game/domain/entities/game_entities.dart';
 import 'package:sweeper_game/domain/entities/game_events.dart';
+import 'package:sweeper_game/domain/services/board_initializer.dart';
+import 'package:sweeper_game/domain/services/cell_grid_clone.dart';
 
 /// Pure Dart game rules engine — no Flutter imports.
+///
+/// Kept as a single orchestrator: every public method mutates one [GameSnapshot]
+/// and returns events. Splitting further would scatter snapshot lifecycle across
+/// types without reducing complexity — board setup lives in [BoardInitializer].
 class GameEngine {
   GameEngine({
     required GameConfig config,
@@ -25,54 +31,10 @@ class GameEngine {
   }
 
   GameEngineResult initialize() {
-    final gridSize = _config.gridSize;
-    final cells = List.generate(
-      gridSize,
-      (row) => List.generate(
-        gridSize,
-        (col) => Cell(row: row, col: col),
-      ),
-    );
-
-    final allPositions = <({int row, int col})>[];
-    for (var r = 0; r < gridSize; r++) {
-      for (var c = 0; c < gridSize; c++) {
-        allPositions.add((row: r, col: c));
-      }
-    }
-    allPositions.shuffle(_random);
-
-    var bombCount = _config.initialBombCount;
-    final bombPositions = allPositions.take(bombCount).toList();
-
-    for (final pos in bombPositions) {
-      cells[pos.row][pos.col] = cells[pos.row][pos.col]
-          .copyWith(bombStatus: BombStatus.hidden);
-    }
-
-    final pieceCount = _config.initialPieces.clamp(0, gridSize * gridSize);
-    final availableForPieces = allPositions
-        .skip(bombCount)
-        .where((p) => cells[p.row][p.col].piece == null)
-        .take(pieceCount)
-        .toList();
-
-    for (var i = 0; i < availableForPieces.length; i++) {
-      final pos = availableForPieces[i];
-      cells[pos.row][pos.col] = cells[pos.row][pos.col].copyWith(
-        piece: Piece(id: 'piece_$i'),
-      );
-    }
-
-    _snapshot = GameSnapshot(
-      board: Board(cells: cells, gridSize: gridSize),
-      discoveredBombCount: 0,
-      explodedBombCount: 0,
-      phase: GamePhase.playing,
+    _snapshot = BoardInitializer.createInitialSnapshot(
       config: _config,
-      secondsUntilNextBlast: _config.tickInterval.inSeconds,
+      random: _random,
     );
-
     return GameEngineResult(snapshot: _snapshot!);
   }
 
@@ -115,7 +77,7 @@ class GameEngine {
       );
     }
 
-    final cells = _deepCopyCells(_snapshot!.board.cells);
+    final cells = cloneCellGrid(_snapshot!.board.cells);
     final piece = fromCell.piece!;
 
     cells[fromRow][fromCol] = cells[fromRow][fromCol].copyWith(clearPiece: true);
@@ -155,7 +117,7 @@ class GameEngine {
     }
 
     final target = hidden[_random.nextInt(hidden.length)];
-    final cells = _deepCopyCells(_snapshot!.board.cells);
+    final cells = cloneCellGrid(_snapshot!.board.cells);
     cells[target.row][target.col] = cells[target.row][target.col].copyWith(
       bombStatus: BombStatus.exploded,
       clearPiece: cells[target.row][target.col].piece != null,
@@ -213,7 +175,7 @@ class GameEngine {
     }
 
     final target = emptyCells[_random.nextInt(emptyCells.length)];
-    final cells = _deepCopyCells(_snapshot!.board.cells);
+    final cells = cloneCellGrid(_snapshot!.board.cells);
     cells[target.row][target.col] = cells[target.row][target.col].copyWith(
       bombStatus: BombStatus.hidden,
     );
@@ -246,18 +208,5 @@ class GameEngine {
       ];
     }
     return GameEngineResult(snapshot: _snapshot!, events: events);
-  }
-
-  List<List<Cell>> _deepCopyCells(List<List<Cell>> source) {
-    return source
-        .map((row) => row.map((cell) {
-              return Cell(
-                row: cell.row,
-                col: cell.col,
-                piece: cell.piece,
-                bombStatus: cell.bombStatus,
-              );
-            }).toList())
-        .toList();
   }
 }

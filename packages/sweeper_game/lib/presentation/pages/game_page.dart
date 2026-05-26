@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:sweeper_l10n/sweeper_l10n.dart';
-import 'package:sweeper_theme/app_colors.dart';
-import 'package:sweeper_theme/app_spacing.dart';
-import 'package:sweeper_theme/widgets/app_buttons.dart';
-import 'package:sweeper_auth/presentation/cubit/auth_cubit.dart';
-import 'package:sweeper_auth/presentation/widgets/auth_profile_section.dart';
-import 'package:sweeper_auth/presentation/widgets/guest_session_section.dart';
 import 'package:sweeper_game/domain/entities/game_config.dart';
 import 'package:sweeper_game/presentation/cubit/game_cubit.dart';
 import 'package:sweeper_game/presentation/cubit/game_state.dart';
+import 'package:sweeper_game/presentation/cubit/pause_reason.dart';
 import 'package:sweeper_game/presentation/widgets/board_grid.dart';
+import 'package:sweeper_game/presentation/widgets/game_header.dart';
 import 'package:sweeper_game/presentation/widgets/game_hud.dart';
+import 'package:sweeper_game/presentation/widgets/game_pause_overlay.dart';
+import 'package:sweeper_game/presentation/widgets/game_settings_sheet.dart';
+import 'package:sweeper_game/presentation/widgets/game_stats_grid.dart';
 import 'package:sweeper_game/presentation/widgets/magic_bomb_banner.dart';
+import 'package:sweeper_l10n/sweeper_l10n.dart';
 import 'package:sweeper_settings/sweeper_settings.dart';
+import 'package:sweeper_theme/app_spacing.dart';
 
 class GamePage extends StatefulWidget {
   const GamePage({super.key});
@@ -83,13 +83,13 @@ class _GamePageState extends State<GamePage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _Header(
+                            GameHeader(
                               isPaused: isPaused,
                               onPauseToggle: () {
                                 if (isPaused) {
                                   cubit.resume();
                                 } else {
-                                  cubit.pause();
+                                  cubit.pause(reason: PauseReason.manual);
                                 }
                               },
                               onReset: () {
@@ -101,10 +101,10 @@ class _GamePageState extends State<GamePage> {
                                   config: GameConfig.fromGridSize(gridSize),
                                 );
                               },
-                              onSettings: () => _showSettings(context),
+                              onSettings: () => _openSettings(cubit),
                             ),
                             const SizedBox(height: AppSpacing.lg),
-                            _StatsGrid(state: state, l10n: l10n),
+                            GameStatsGrid(state: state, l10n: l10n),
                             const SizedBox(height: AppSpacing.lg),
                             BoardGrid(
                               board: snapshot.board,
@@ -149,37 +149,9 @@ class _GamePageState extends State<GamePage> {
                           ],
                         ),
                       ),
-                      if (isPaused)
+                      if (state.showPauseOverlay)
                         Positioned.fill(
-                          child: ColoredBox(
-                            color: AppColors.background.withValues(alpha: 0.75),
-                            child: Center(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.pause_circle_outline,
-                                    size: 64,
-                                    color: AppColors.cyan.withValues(alpha: 0.8),
-                                  ),
-                                  const SizedBox(height: AppSpacing.md),
-                                  Text(
-                                    l10n.paused,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headlineLarge,
-                                  ),
-                                  const SizedBox(height: AppSpacing.lg),
-                                  FilledButton.icon(
-                                    onPressed: cubit.resume,
-                                    icon: const Icon(Icons.play_arrow),
-                                    label: Text(l10n.resume),
-                                    style: AppButtons.filledCyan,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
+                          child: GamePauseOverlay(onResume: cubit.resume),
                         ),
                       if (state.magicBombBannerWholeDollars != null)
                         Positioned(
@@ -207,224 +179,13 @@ class _GamePageState extends State<GamePage> {
     );
   }
 
-  void _showSettings(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final gameCubit = context.read<GameCubit>();
-    gameCubit.pause();
-
-    showModalBottomSheet<bool>(
-      context: context,
-      backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (sheetContext) {
-        return BlocBuilder<SettingsCubit, SettingsState>(
-          builder: (context, settings) {
-            return Padding(
-              padding: const EdgeInsets.all(AppSpacing.xxl),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    l10n.settings,
-                    style: Theme.of(context).textTheme.headlineLarge,
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  Text(
-                    l10n.boardSize,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Row(
-                    children: SettingsState.availableSizes.map((size) {
-                      final selected = settings.gridSize == size;
-                      return Padding(
-                        padding: const EdgeInsets.only(right: AppSpacing.sm),
-                        child: ChoiceChip(
-                          label: Text('${size}x$size'),
-                          selected: selected,
-                          onSelected: (_) {
-                            context.read<SettingsCubit>().setGridSize(size);
-                            final config = GameConfig.fromGridSize(size);
-                            context.read<GameCubit>().restart(config: config);
-                            Navigator.pop(sheetContext);
-                          },
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  BlocBuilder<AuthCubit, AuthState>(
-                    builder: (context, auth) {
-                      if (!auth.isAvailable) {
-                        return const SizedBox.shrink();
-                      }
-                      if (auth.isGuest) {
-                        return GuestSessionSection(
-                          isLoading: auth.isLoading,
-                          isEndingSession: auth.isSigningOut,
-                          onSignIn: auth.isLoading
-                              ? null
-                              : () => context
-                                  .read<AuthCubit>()
-                                  .signInWithGoogle(),
-                          onEndGuestSession: auth.isSigningOut
-                              ? null
-                              : () => _endSessionFromSettings(
-                                    sheetContext: sheetContext,
-                                    gameCubit: gameCubit,
-                                  ),
-                        );
-                      }
-                      if (auth.user == null) {
-                        return const SizedBox.shrink();
-                      }
-                      return AuthProfileSection(
-                        user: auth.user!,
-                        isSigningOut: auth.isSigningOut,
-                        onSignOut: auth.isSigningOut
-                            ? null
-                            : () => _endSessionFromSettings(
-                                  sheetContext: sheetContext,
-                                  gameCubit: gameCubit,
-                                ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    ).then((sessionEnded) {
-      if (!mounted) return;
-      if (sessionEnded == true) return;
-      gameCubit.resume();
-    });
-  }
-
-  Future<void> _endSessionFromSettings({
-    required BuildContext sheetContext,
-    required GameCubit gameCubit,
-  }) async {
-    Navigator.of(sheetContext).pop(true);
-    await gameCubit.stopGame();
+  Future<void> _openSettings(GameCubit gameCubit) async {
+    final sessionEnded = await showGameSettingsSheet(
+      context,
+      gameCubit: gameCubit,
+    );
     if (!mounted) return;
-    await context.read<AuthCubit>().signOut();
-  }
-}
-
-class _Header extends StatelessWidget {
-  const _Header({
-    required this.isPaused,
-    required this.onPauseToggle,
-    required this.onReset,
-    required this.onSettings,
-  });
-
-  final bool isPaused;
-  final VoidCallback onPauseToggle;
-  final VoidCallback onReset;
-  final VoidCallback onSettings;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l10n.reversed,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              Text(
-                l10n.minesweeper,
-                style: Theme.of(context).textTheme.headlineLarge,
-              ),
-            ],
-          ),
-        ),
-        IconButton(
-          onPressed: onPauseToggle,
-          tooltip: isPaused ? l10n.resume : l10n.pause,
-          icon: Icon(
-            isPaused ? Icons.play_arrow : Icons.pause,
-            color: AppColors.cyan,
-          ),
-        ),
-        IconButton(
-          onPressed: onSettings,
-          icon: const Icon(Icons.settings, color: AppColors.textSecondary),
-        ),
-        IconButton(
-          onPressed: onReset,
-          style: IconButton.styleFrom(
-            backgroundColor: AppColors.surface,
-            shape: const CircleBorder(),
-          ),
-          icon: const Icon(Icons.refresh, color: AppColors.cyan),
-        ),
-      ],
-    );
-  }
-}
-
-class _StatsGrid extends StatelessWidget {
-  const _StatsGrid({required this.state, required this.l10n});
-
-  final GameState state;
-  final AppLocalizations l10n;
-
-  @override
-  Widget build(BuildContext context) {
-    final btcDirection = state.btcPriceDirection;
-
-    return GridView.count(
-      crossAxisCount: 2,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: AppSpacing.sm,
-      crossAxisSpacing: AppSpacing.sm,
-      childAspectRatio: 3.0,
-      children: [
-        StatCard(
-          label: l10n.discovered,
-          icon: Icons.gps_fixed,
-          value: '${state.discoveredCount}',
-          valueColor: AppColors.springGreen,
-        ),
-        StatCard(
-          label: l10n.remaining,
-          icon: Icons.warning_amber_rounded,
-          value: '${state.remainingCount}',
-          valueColor: AppColors.coralRed,
-          pulseGeneration: state.remainingPulseGeneration,
-        ),
-        StatCard(
-          label: l10n.btcLive,
-          icon: Icons.currency_bitcoin,
-          value: formatBtcPrice(state.btcPrice?.priceUsd),
-          valueColor: AppColors.sun,
-          subValue: state.btcPrice != null
-              ? (btcDirection < 0 ? '▼' : '▲')
-              : null,
-          subValueColor: btcDirection < 0
-              ? AppColors.coralRed
-              : AppColors.springGreen,
-        ),
-        StatCard(
-          label: l10n.nextBlast,
-          icon: Icons.timer_outlined,
-          value: formatTimer(state.secondsUntilBlast),
-          valueColor: AppColors.cyan,
-        ),
-      ],
-    );
+    if (sessionEnded == true) return;
+    gameCubit.resume();
   }
 }

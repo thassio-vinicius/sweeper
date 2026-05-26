@@ -7,6 +7,7 @@ import 'package:sweeper_game/domain/entities/game_entities.dart';
 import 'package:sweeper_game/domain/entities/game_events.dart';
 import 'package:sweeper_game/domain/repositories/btc_price_repository.dart';
 import 'package:sweeper_game/domain/services/game_engine.dart';
+import 'package:sweeper_game/presentation/cubit/pause_reason.dart';
 import 'package:sweeper_game/presentation/cubit/game_state.dart';
 
 class GameCubit extends Cubit<GameState> {
@@ -55,13 +56,13 @@ class GameCubit extends Cubit<GameState> {
     startGame(config: config);
   }
 
-  void pause() {
+  void pause({PauseReason reason = PauseReason.manual}) {
     if (state.status == GameStatus.gameOver ||
         state.status == GameStatus.paused) {
       return;
     }
     _statusBeforePause = state.status;
-    emit(state.copyWith(status: GameStatus.paused));
+    emit(state.copyWith(status: GameStatus.paused, pauseReason: reason));
   }
 
   void resume() {
@@ -69,6 +70,7 @@ class GameCubit extends Cubit<GameState> {
     emit(
       state.copyWith(
         status: _statusBeforePause ?? GameStatus.playing,
+        pauseReason: PauseReason.none,
       ),
     );
     _statusBeforePause = null;

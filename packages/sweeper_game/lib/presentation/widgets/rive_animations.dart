@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rive/rive.dart';
-import 'package:sweeper_game/presentation/widgets/explosion_overlay.dart';
+import 'package:sweeper_game/presentation/widgets/explosion_effect.dart';
 
 /// Attempts to play a Rive explosion animation; falls back to [ExplosionEffect].
 class RiveExplosionWrapper extends StatefulWidget {

@@ -1,0 +1,1 @@
+enum GamePhase { playing, gameOver }
