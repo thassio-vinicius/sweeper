@@ -168,19 +168,6 @@ State management: **Cubits** (`flutter_bloc`) — registered in the widget tree 
 
 ---
 
-## Development workflow (Melos)
-
-All commands run from the **repo root**:
-
-```bash
-dart run melos bootstrap      # pub get + link path packages (run after clone or pubspec changes)
-dart run melos analyze        # dart/flutter analyze in every package
-dart run melos test             # flutter test in packages that have test/
-dart run melos run format       # dart format all packages
-```
-
----
-
 ## Testing
 
 **119 tests** (unit/widget) across the monorepo — game engine, cubits, settings, auth, routing, and widgets.
