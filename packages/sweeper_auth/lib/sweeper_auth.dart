@@ -1,7 +1,10 @@
-
 export 'config/app_access_config.dart';
 export 'config/create_app_access_config.dart';
+export 'data/datasources/auth_remote_datasource.dart';
+export 'data/datasources/firebase_auth_datasource.dart';
 export 'data/repositories/auth_repository_impl.dart';
+export 'domain/entities/auth_user.dart';
+export 'domain/failures/auth_failure.dart';
 export 'domain/repositories/auth_repository.dart';
 export 'presentation/cubit/auth_cubit.dart';
 export 'presentation/pages/login_page.dart';

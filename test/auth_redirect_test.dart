@@ -3,6 +3,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:sweeper/core/router/app_paths.dart';
 import 'package:sweeper/core/router/auth_redirect.dart';
 import 'package:sweeper_auth/config/app_access_config.dart';
+import 'package:sweeper_auth/domain/entities/auth_user.dart';
 import 'package:sweeper_auth/domain/repositories/auth_repository.dart';
 import 'package:sweeper_auth/session/auth_session.dart';
 

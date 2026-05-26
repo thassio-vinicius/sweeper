@@ -1,11 +1,11 @@
 import 'package:sweeper_auth/domain/entities/auth_user.dart';
 
-abstract class AuthRepository {
-  Stream<AuthUser?> get authStateChanges;
+/// Remote auth I/O — Firebase Auth and Google Sign-In.
+abstract class AuthRemoteDataSource {
+  Stream<AuthUser?> watchAuthState();
 
   AuthUser? get currentUser;
 
-  /// Waits until Firebase restores the persisted session on cold start.
   Future<void> waitForInitialAuthState();
 
   Future<AuthUser> signInWithGoogle();

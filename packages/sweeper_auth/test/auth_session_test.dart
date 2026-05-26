@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:sweeper_auth/session/auth_session.dart';
 import 'package:sweeper_auth/config/app_access_config.dart';
+import 'package:sweeper_auth/domain/entities/auth_user.dart';
 import 'package:sweeper_auth/domain/repositories/auth_repository.dart';
 
 class MockAuthRepository extends Mock implements AuthRepository {}

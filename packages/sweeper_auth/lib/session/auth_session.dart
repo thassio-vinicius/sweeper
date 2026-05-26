@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:sweeper_auth/config/app_access_config.dart';
+import 'package:sweeper_auth/domain/entities/auth_user.dart';
 import 'package:sweeper_auth/domain/repositories/auth_repository.dart';
 
 /// Single source of truth for gameplay access state.

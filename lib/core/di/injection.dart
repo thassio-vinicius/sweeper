@@ -4,6 +4,8 @@ import 'package:sweeper/core/router/app_router.dart';
 import 'package:sweeper/core/router/auth_refresh_notifier.dart';
 import 'package:sweeper_auth/config/app_access_config.dart';
 import 'package:sweeper_auth/config/create_app_access_config.dart';
+import 'package:sweeper_auth/data/datasources/auth_remote_datasource.dart';
+import 'package:sweeper_auth/data/datasources/firebase_auth_datasource.dart';
 import 'package:sweeper_auth/data/repositories/auth_repository_impl.dart';
 import 'package:sweeper_auth/domain/repositories/auth_repository.dart';
 import 'package:sweeper_auth/session/auth_session.dart';
@@ -30,10 +32,14 @@ Future<void> configureDependencies() async {
     () => BtcPriceRepositoryImpl(getIt()),
   );
 
-  getIt.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(
+  getIt.registerLazySingleton<AuthRemoteDataSource>(
+    () => FirebaseAuthDataSource(
       googleServerClientId: AppEnv.googleServerClientId,
     ),
+  );
+
+  getIt.registerLazySingleton<AuthRepository>(
+    () => AuthRepositoryImpl(getIt()),
   );
 
   getIt.registerLazySingleton<AuthSession>(

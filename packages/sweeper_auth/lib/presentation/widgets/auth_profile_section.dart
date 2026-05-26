@@ -3,7 +3,7 @@ import 'package:sweeper_l10n/sweeper_l10n.dart';
 import 'package:sweeper_theme/app_tokens.dart';
 import 'package:sweeper_theme/widgets/app_buttons.dart';
 import 'package:sweeper_theme/widgets/game_surface_card.dart';
-import 'package:sweeper_auth/domain/repositories/auth_repository.dart';
+import 'package:sweeper_auth/domain/entities/auth_user.dart';
 
 class AuthProfileSection extends StatelessWidget {
   const AuthProfileSection({
