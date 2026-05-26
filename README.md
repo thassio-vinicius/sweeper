@@ -121,26 +121,13 @@ packages/<feature>/lib/
 |-------|----------------|----------------------------|
 | **Domain** | Business rules, models, repository interfaces — **no I/O** | `GameEngine`, `UserSettings`, `AuthUser`, `AuthRepository`, `SettingsRepository` |
 | **Data** | Talks to the outside world; maps DTOs → domain types | `FirebaseAuthDataSource`, `SharedPreferencesSettingsDataSource`, `BinanceWebSocket`, `*RepositoryImpl` |
-| **Presentation** | Widgets + Cubits; drives UI from domain/data | `GameCubit` / `GamePage`, `AuthCubit` / `LoginPage`, `SettingsCubit` / settings sheet |
+| **Presentation** | Widgets + Cubits; drives UI from domain/data | `GameCubit` / `GamePage`, `AuthCubit` / `LoginPage`, `SettingsCubit` / `SettingsSheet` |
 
 Dependency rule: **presentation → domain ← data**. Presentation never imports datasources directly; the app shell registers concrete implementations in `get_it` (`lib/core/di/injection.dart`).
 
 Some cross-cutting code sits beside the three folders when it spans features — e.g. `sweeper_auth/session/` (guest/sign-in lifecycle) and `config/` (platform access flags).
 
-State management: **Cubits** (`flutter_bloc`) — registered in the widget tree via `MultiBlocProvider` in `app.dart`. Navigation: **go_router** with typed paths in `AppPaths` (`lib/core/router`). DI: **get_it** for singleton services/repos only.
-
-### Package dependency graph
-
-```
-sweeper (app)
-  ├── sweeper_auth ──► sweeper_theme, sweeper_l10n
-  ├── sweeper_game ──► sweeper_auth, sweeper_theme, sweeper_l10n, sweeper_settings
-  ├── sweeper_settings ──► sweeper_theme, sweeper_l10n
-  ├── sweeper_theme
-  └── sweeper_l10n
-
-sweeper_game ──► sweeper_settings   (grid size → GameConfig.fromGridSize; game menu embeds settings sheet)
-```
+State management: **Cubits** (`flutter_bloc`) — registered in the widget tree via `MultiBlocProvider` in `app.dart`. Navigation: **go_router** with typed paths in `AppPaths` (`lib/core/router`). DI: **get_it** for singleton services/repos.
 
 ### Key design decisions
 
@@ -185,24 +172,6 @@ dart run melos analyze        # dart/flutter analyze in every package
 dart run melos test             # flutter test in packages that have test/
 dart run melos run format       # dart format all packages
 ```
-
-Edit translation strings in `packages/sweeper_l10n/assets/translations/*.json`. Use `'key'.tr()` in widgets — no `AppLocalizations.of(context)` boilerplate. Stat labels and callouts apply casing via `AppText.labelCaps()` / `AppText.calloutCaps()` at display time, not in the JSON files.
-
-**Single-package work** — you can also `cd packages/sweeper_game && flutter test`.
-
----
-
-## Build & run by platform
-
-### Android
-
-**Google Sign-In (debug):** Download or copy `google-services.json` locally (see Firebase setup below).
-
-**Guest mode:** with Firebase configured, the login screen shows **Play as guest** on Android.
-
-### iOS
-
-Ensure `GoogleService-Info.plist` is in `ios/Runner/` (copy from `.example` or Firebase Console) and the URL scheme from Firebase is in `Info.plist`. Guest mode is **not** offered on iOS.
 
 ---
 
