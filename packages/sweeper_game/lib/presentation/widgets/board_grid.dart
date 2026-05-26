@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:sweeper_game/domain/entities/board.dart';
-import 'package:sweeper_game/presentation/cubit/game_state.dart';
 import 'package:sweeper_game/presentation/widgets/board_cell.dart';
 import 'package:sweeper_game/presentation/widgets/explosion_effect.dart';
 import 'package:sweeper_game/presentation/widgets/magic_bomb_pulse.dart';
-import 'package:sweeper_game/presentation/widgets/sliding_piece_overlay.dart';
 
 class BoardGrid extends StatelessWidget {
   const BoardGrid({
@@ -17,8 +15,6 @@ class BoardGrid extends StatelessWidget {
     this.explosionAt,
     this.magicBombAt,
     this.magicBombGeneration = 0,
-    this.slideMove,
-    this.slideGeneration = 0,
     this.isInteractive = true,
   });
 
@@ -36,18 +32,10 @@ class BoardGrid extends StatelessWidget {
   final ({int row, int col})? explosionAt;
   final ({int row, int col})? magicBombAt;
   final int magicBombGeneration;
-  final BoardMove? slideMove;
-  final int slideGeneration;
   final bool isInteractive;
 
   Offset _cellTopLeft(int row, int col, double cellSize, double gap) {
     return Offset(col * (cellSize + gap), row * (cellSize + gap));
-  }
-
-  bool _hidePieceForSlide(int row, int col) {
-    if (slideMove == null) return false;
-    return (row == slideMove!.fromRow && col == slideMove!.fromCol) ||
-        (row == slideMove!.toRow && col == slideMove!.toCol);
   }
 
   @override
@@ -82,7 +70,6 @@ class BoardGrid extends StatelessWidget {
                   pieceSize: pieceSize,
                   snapBackGeneration: snapBackGeneration,
                   snapBackCell: snapBackCell,
-                  hidePiece: _hidePieceForSlide(row, col),
                   isInteractive: isInteractive,
                   onDrop: (data, toRow, toCol) {
                     onMovePiece(
@@ -98,18 +85,6 @@ class BoardGrid extends StatelessWidget {
                 );
               },
             ),
-            if (slideMove != null)
-              SlidingPieceOverlay(
-                key: ValueKey(slideGeneration),
-                fromRow: slideMove!.fromRow,
-                fromCol: slideMove!.fromCol,
-                toRow: slideMove!.toRow,
-                toCol: slideMove!.toCol,
-                cellSize: cellSize,
-                gap: gap,
-                pieceSize: pieceSize,
-                generation: slideGeneration,
-              ),
             if (explosionAt != null)
               Builder(
                 builder: (context) {

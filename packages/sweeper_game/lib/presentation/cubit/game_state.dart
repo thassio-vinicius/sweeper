@@ -11,8 +11,6 @@ enum GameStatus {
   error,
 }
 
-typedef BoardMove = ({int fromRow, int fromCol, int toRow, int toCol});
-
 class GameState extends Equatable {
   const GameState({
     this.status = GameStatus.initial,
@@ -29,8 +27,6 @@ class GameState extends Equatable {
     this.errorMessage,
     this.snapBackCell,
     this.snapBackGeneration = 0,
-    this.slideMove,
-    this.slideGeneration = 0,
   });
 
   final GameStatus status;
@@ -47,8 +43,6 @@ class GameState extends Equatable {
   final String? errorMessage;
   final ({int row, int col})? snapBackCell;
   final int snapBackGeneration;
-  final BoardMove? slideMove;
-  final int slideGeneration;
 
   bool get isInteractive => status == GameStatus.playing;
 
@@ -74,14 +68,11 @@ class GameState extends Equatable {
     String? errorMessage,
     ({int row, int col})? snapBackCell,
     int? snapBackGeneration,
-    BoardMove? slideMove,
-    int? slideGeneration,
     bool clearExplosion = false,
     bool clearMagicBomb = false,
     bool clearMagicBombBanner = false,
     bool clearError = false,
     bool clearSnapBack = false,
-    bool clearSlide = false,
   }) {
     return GameState(
       status: status ?? this.status,
@@ -102,8 +93,6 @@ class GameState extends Equatable {
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
       snapBackCell: clearSnapBack ? null : (snapBackCell ?? this.snapBackCell),
       snapBackGeneration: snapBackGeneration ?? this.snapBackGeneration,
-      slideMove: clearSlide ? null : (slideMove ?? this.slideMove),
-      slideGeneration: slideGeneration ?? this.slideGeneration,
     );
   }
 
@@ -123,7 +112,5 @@ class GameState extends Equatable {
         errorMessage,
         snapBackCell,
         snapBackGeneration,
-        slideMove,
-        slideGeneration,
       ];
 }

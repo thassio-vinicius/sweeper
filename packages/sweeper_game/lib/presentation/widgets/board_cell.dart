@@ -15,7 +15,6 @@ class BoardCell extends StatelessWidget {
     required this.onDrop,
     required this.onInvalidDrop,
     required this.isInteractive,
-    this.hidePiece = false,
   });
 
   final Cell cell;
@@ -25,14 +24,12 @@ class BoardCell extends StatelessWidget {
   final void Function(BoardDragData data, int toRow, int toCol) onDrop;
   final void Function(int fromRow, int fromCol) onInvalidDrop;
   final bool isInteractive;
-  final bool hidePiece;
 
   @override
   Widget build(BuildContext context) {
     final isScorched =
         cell.bombStatus == BombStatus.exploded && cell.piece == null;
-    final isDiscovered =
-        cell.bombStatus == BombStatus.discovered && cell.piece != null;
+    final isDiscovered = cell.bombStatus == BombStatus.discovered;
 
     return DragTarget<BoardDragData>(
       onWillAcceptWithDetails: (details) {
@@ -76,7 +73,7 @@ class BoardCell extends StatelessWidget {
                                 : AppColors.cellBorder,
               ),
             ),
-            child: cell.piece != null && !hidePiece
+            child: cell.piece != null
                 ? Center(
                     child: SnapBackDraggablePiece(
                       dragData: BoardDragData(
@@ -102,7 +99,15 @@ class BoardCell extends StatelessWidget {
                           color: AppColors.coralRed.withValues(alpha: 0.5),
                         ),
                       )
-                    : null,
+                    : isDiscovered
+                        ? Center(
+                            child: Icon(
+                              Icons.check_circle_outline,
+                              size: pieceSize * 0.45,
+                              color: AppColors.coralRed.withValues(alpha: 0.55),
+                            ),
+                          )
+                        : null,
           ),
         );
       },

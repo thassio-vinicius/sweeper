@@ -58,6 +58,22 @@ void main() {
     expect(discoveredDecoration?.border, isNot(equals(plainDecoration?.border)));
   });
 
+  testWidgets('discovered bomb styling persists after piece leaves', (tester) async {
+    const discoveredEmptyCell = Cell(
+      row: 0,
+      col: 0,
+      bombStatus: BombStatus.discovered,
+    );
+
+    await tester.pumpWidget(wrap(buildCell(discoveredEmptyCell)));
+    final decoration =
+        tester.widget<AnimatedContainer>(find.byType(AnimatedContainer)).decoration
+            as BoxDecoration?;
+
+    expect(find.byIcon(Icons.check_circle_outline), findsOneWidget);
+    expect(decoration?.border, isNotNull);
+  });
+
   testWidgets('scorched exploded cell shows fire icon', (tester) async {
     const scorchedCell = Cell(
       row: 0,

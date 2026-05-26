@@ -153,8 +153,6 @@ class _GameBody extends StatelessWidget {
                               explosionAt: state.explosionAt,
                               magicBombAt: state.magicBombAt,
                               magicBombGeneration: state.magicBombGeneration,
-                              slideMove: state.slideMove,
-                              slideGeneration: state.slideGeneration,
                               isInteractive: state.isInteractive,
                               onMovePiece: ({
                                 required fromRow,

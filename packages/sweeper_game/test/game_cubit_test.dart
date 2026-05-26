@@ -78,7 +78,7 @@ void main() {
   );
 
   blocTest<GameCubit, GameState>(
-    'valid move triggers slide animation state',
+    'valid move updates board immediately without animating',
     build: buildCubit,
     act: (cubit) async {
       await cubit.startGame();
@@ -93,8 +93,7 @@ void main() {
       );
     },
     verify: (cubit) {
-      expect(cubit.state.status, GameStatus.animating);
-      expect(cubit.state.slideMove, isNotNull);
+      expect(cubit.state.status, GameStatus.playing);
       expect(cubit.state.explosionAt, isNull);
     },
   );
@@ -128,7 +127,6 @@ void main() {
     verify: (cubit) {
       expect(cubit.state.status, GameStatus.animating);
       expect(cubit.state.explosionAt, isNotNull);
-      expect(cubit.state.slideMove, isNull);
       expect(cubit.state.snapshot!.discoveredBombCount, 1);
     },
   );
@@ -159,14 +157,20 @@ void main() {
     build: buildCubit,
     act: (cubit) async {
       await cubit.startGame();
-      final move = findSafeMove(cubit.state.snapshot!);
-      expect(move, isNotNull);
+
+      MoveCoords? discoveryMove;
+      for (var attempt = 0; attempt < 20; attempt++) {
+        await cubit.restart();
+        discoveryMove = findHiddenBombMove(cubit.state.snapshot!);
+        if (discoveryMove != null) break;
+      }
+      expect(discoveryMove, isNotNull);
 
       cubit.movePiece(
-        fromRow: move!.fromRow,
-        fromCol: move.fromCol,
-        toRow: move.toRow,
-        toCol: move.toCol,
+        fromRow: discoveryMove!.fromRow,
+        fromCol: discoveryMove.fromCol,
+        toRow: discoveryMove.toRow,
+        toCol: discoveryMove.toCol,
       );
 
       final hiddenBefore = cubit.state.snapshot!.board.hiddenBombCount;
@@ -190,18 +194,24 @@ void main() {
     build: buildCubit,
     act: (cubit) async {
       await cubit.startGame();
-      final firstMove = findSafeMove(cubit.state.snapshot!);
-      expect(firstMove, isNotNull);
+
+      MoveCoords? discoveryMove;
+      for (var attempt = 0; attempt < 20; attempt++) {
+        await cubit.restart();
+        discoveryMove = findHiddenBombMove(cubit.state.snapshot!);
+        if (discoveryMove != null) break;
+      }
+      expect(discoveryMove, isNotNull);
 
       cubit.movePiece(
-        fromRow: firstMove!.fromRow,
-        fromCol: firstMove.fromCol,
-        toRow: firstMove.toRow,
-        toCol: firstMove.toCol,
+        fromRow: discoveryMove!.fromRow,
+        fromCol: discoveryMove.fromCol,
+        toRow: discoveryMove.toRow,
+        toCol: discoveryMove.toCol,
       );
 
-      final snapshotAfterSlide = cubit.state.snapshot;
-      final secondMove = findSafeMove(snapshotAfterSlide!);
+      final snapshotAfterDiscovery = cubit.state.snapshot;
+      final secondMove = findSafeMove(snapshotAfterDiscovery!);
       expect(secondMove, isNotNull);
 
       cubit.movePiece(
@@ -211,7 +221,7 @@ void main() {
         toCol: secondMove.toCol,
       );
 
-      expect(cubit.state.snapshot, snapshotAfterSlide);
+      expect(cubit.state.snapshot, snapshotAfterDiscovery);
     },
   );
 }
