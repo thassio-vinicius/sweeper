@@ -15,8 +15,6 @@ dependencies:
   web_socket_channel: ^3.0.2
   sweeper_auth:
     path: ../sweeper_auth
-  sweeper_core:
-    path: ../sweeper_core
   sweeper_l10n:
     path: ../sweeper_l10n
   sweeper_settings:

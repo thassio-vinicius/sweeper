@@ -7,7 +7,7 @@ import 'package:sweeper_auth/config/create_app_access_config.dart';
 import 'package:sweeper_auth/data/repositories/auth_repository_impl.dart';
 import 'package:sweeper_auth/domain/repositories/auth_repository.dart';
 import 'package:sweeper_auth/session/auth_session.dart';
-import 'package:sweeper_core/clock.dart';
+import 'package:sweeper_game/core/clock.dart';
 import 'package:sweeper_game/data/datasources/binance_ws.dart';
 import 'package:sweeper_game/data/repositories/btc_price_repository_impl.dart';
 import 'package:sweeper_game/domain/repositories/btc_price_repository.dart';

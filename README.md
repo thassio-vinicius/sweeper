@@ -84,7 +84,6 @@ sweeper/                          ← App shell (android/, ios/, lib/)
 │       ├── di/injection.dart     ← get_it (services/repos only — no cubits)
 │       └── router/               ← go_router, AuthRedirect, AppPaths
 ├── packages/
-│   ├── sweeper_core/             ← Failures, Clock, AppPaths
 │   ├── sweeper_theme/            ← Design tokens, AppTheme, shared widgets + SVG assets
 │   ├── sweeper_l10n/             ← JSON translations + easy_localization loader
 │   ├── sweeper_auth/             ← Firebase/Google auth, session, login UI
@@ -105,14 +104,14 @@ Feature-first **clean architecture**:
 | **Data** | External I/O | Binance WebSocket, DTOs, repository implementations |
 | **Presentation** | UI + state | `GameCubit`, `GamePage`, widgets, animations |
 
-State management: **Cubits** (`flutter_bloc`) — registered in the widget tree via `MultiBlocProvider` in `app.dart` (not in get_it). Navigation: **go_router** with typed paths in `AppPaths` (`sweeper_core`). DI: **get_it** for singleton services/repos only.
+State management: **Cubits** (`flutter_bloc`) — registered in the widget tree via `MultiBlocProvider` in `app.dart` (not in get_it). Navigation: **go_router** with typed paths in `AppPaths` (`lib/core/router`). DI: **get_it** for singleton services/repos only.
 
 ### Package dependency graph
 
 ```
 sweeper (app)
-  ├── sweeper_auth ──► sweeper_core, sweeper_theme, sweeper_l10n
-  ├── sweeper_game ──► sweeper_auth, sweeper_core, sweeper_theme, sweeper_l10n, sweeper_settings
+  ├── sweeper_auth ──► sweeper_theme, sweeper_l10n
+  ├── sweeper_game ──► sweeper_auth, sweeper_theme, sweeper_l10n, sweeper_settings
   ├── sweeper_settings (standalone cubit)
   ├── sweeper_theme
   └── sweeper_l10n

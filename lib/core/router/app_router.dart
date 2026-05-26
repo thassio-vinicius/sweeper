@@ -3,7 +3,7 @@ import 'package:sweeper/core/router/auth_redirect.dart';
 import 'package:sweeper/core/router/auth_refresh_notifier.dart';
 import 'package:sweeper_auth/presentation/pages/login_page.dart';
 import 'package:sweeper_auth/session/auth_session.dart';
-import 'package:sweeper_core/app_paths.dart';
+import 'app_paths.dart';
 import 'package:sweeper_game/presentation/pages/game_over_page.dart';
 import 'package:sweeper_game/presentation/pages/game_page.dart';
 

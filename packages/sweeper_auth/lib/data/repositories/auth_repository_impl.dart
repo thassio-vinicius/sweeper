@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:sweeper_core/failures.dart';
+import 'package:sweeper_auth/domain/failures/auth_failure.dart';
 import 'package:sweeper_auth/domain/repositories/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {

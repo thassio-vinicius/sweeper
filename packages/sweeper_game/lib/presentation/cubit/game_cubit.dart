@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sweeper_core/clock.dart';
+import 'package:sweeper_game/core/clock.dart';
 import 'package:sweeper_game/domain/entities/game_config.dart';
 import 'package:sweeper_game/domain/entities/game_entities.dart';
 import 'package:sweeper_game/domain/entities/game_events.dart';

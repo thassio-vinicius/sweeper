@@ -1,4 +1,4 @@
-import 'package:sweeper_core/app_paths.dart';
+import 'app_paths.dart';
 import 'package:sweeper_auth/session/auth_session.dart';
 
 /// Resolves auth-aware navigation redirects for [GoRouter].

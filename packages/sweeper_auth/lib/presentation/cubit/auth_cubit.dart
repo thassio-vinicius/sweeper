@@ -4,7 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sweeper_auth/session/auth_session.dart';
-import 'package:sweeper_core/failures.dart';
+import 'package:sweeper_auth/domain/failures/auth_failure.dart';
 import 'package:sweeper_auth/domain/repositories/auth_repository.dart';
 
 class AuthState extends Equatable {

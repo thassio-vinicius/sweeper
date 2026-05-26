@@ -13,8 +13,6 @@ dependencies:
   firebase_auth: ^5.5.2
   flutter_bloc: ^9.1.1
   google_sign_in: ^6.3.0
-  sweeper_core:
-    path: ../sweeper_core
   sweeper_l10n:
     path: ../sweeper_l10n
   sweeper_theme:

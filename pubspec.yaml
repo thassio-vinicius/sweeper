@@ -19,8 +19,6 @@ dependencies:
   go_router: ^15.1.2
   sweeper_auth:
     path: packages/sweeper_auth
-  sweeper_core:
-    path: packages/sweeper_core
   sweeper_game:
     path: packages/sweeper_game
   sweeper_l10n:

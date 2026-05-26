@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sweeper_l10n/sweeper_l10n.dart';
-import 'package:sweeper_core/clock.dart';
+import 'package:sweeper_game/core/clock.dart';
 import 'package:sweeper_auth/session/auth_session.dart';
 import 'package:sweeper_auth/config/app_access_config.dart';
 import 'package:sweeper_auth/domain/repositories/auth_repository.dart';

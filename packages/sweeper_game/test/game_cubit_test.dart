@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:sweeper_core/clock.dart';
+import 'package:sweeper_game/core/clock.dart';
 import 'package:sweeper_game/domain/entities/game_config.dart';
 import 'package:sweeper_game/domain/entities/game_entities.dart';
 import 'package:sweeper_game/domain/repositories/btc_price_repository.dart';

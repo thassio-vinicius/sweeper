@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:sweeper_core/app_paths.dart';
+import 'package:sweeper_game/navigation/game_navigation.dart';
 import 'package:sweeper_game/domain/entities/game_config.dart';
 import 'package:sweeper_game/presentation/cubit/game_cubit.dart';
 import 'package:sweeper_game/presentation/cubit/game_state.dart';
@@ -48,7 +48,7 @@ class _GamePageState extends State<GamePage> {
         if (state.status == GameStatus.gameOver) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (!context.mounted) return;
-            context.push(AppPaths.gameOver, extra: state.discoveredCount);
+            context.push(GameNavigation.gameOver, extra: state.discoveredCount);
           });
         }
         if (state.errorMessage != null) {

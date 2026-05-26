@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:sweeper_core/app_paths.dart';
+import 'package:sweeper_game/navigation/game_navigation.dart';
 import 'package:sweeper_game/domain/entities/game_config.dart';
 import 'package:sweeper_game/presentation/cubit/game_cubit.dart';
 import 'package:sweeper_game/presentation/widgets/game_over_animation.dart';
@@ -100,7 +100,7 @@ class _GameOverPageState extends State<GameOverPage>
                               context.read<SettingsCubit>().state.gridSize,
                             );
                             context.read<GameCubit>().restart(config: config);
-                            context.go(AppPaths.home);
+                            context.go(GameNavigation.home);
                           },
                           style: AppButtons.filledCyan,
                           child: Text('playAgain'.tr()),
