@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sweeper_l10n/sweeper_l10n.dart';
-import 'package:sweeper_theme/app_tokens.dart';
+import 'package:sweeper_theme/sweeper_theme.dart';
 
 class GameHeader extends StatelessWidget {
   const GameHeader({
@@ -21,18 +21,10 @@ class GameHeader extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                AppText.labelCaps('reversed'.tr()),
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              Text(
-                'minesweeper'.tr(),
-                style: Theme.of(context).textTheme.headlineLarge,
-              ),
-            ],
+          child: GameTitleBrand(
+            size: GameTitleBrandSize.compact,
+            eyebrow: AppText.labelCaps('reversed'.tr()),
+            title: 'minesweeper'.tr(),
           ),
         ),
         IconButton(

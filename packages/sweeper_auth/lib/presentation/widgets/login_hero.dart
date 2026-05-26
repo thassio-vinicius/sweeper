@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sweeper_l10n/sweeper_l10n.dart';
 import 'package:sweeper_theme/app_tokens.dart';
 import 'package:sweeper_theme/widgets/app_buttons.dart';
+import 'package:sweeper_theme/widgets/game_title_brand.dart';
 
 class GameTitleHero extends StatelessWidget {
   const GameTitleHero({
@@ -30,29 +31,9 @@ class GameTitleHero extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const _TitleGlowIcon(),
-          const SizedBox(height: AppSpacing.sm),
-          ShaderMask(
-            blendMode: BlendMode.srcIn,
-            shaderCallback: (bounds) =>
-                AppGradients.gradientEyebrow.createShader(bounds),
-            child: Text(
-              AppText.labelCaps('reversed'.tr()),
-              style: AppTypography.eyebrow,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          ShaderMask(
-            blendMode: BlendMode.srcIn,
-            shaderCallback: (bounds) =>
-                AppGradients.gradientHeadline.createShader(bounds),
-            child: Text(
-              'minesweeper'.tr(),
-              textAlign: TextAlign.center,
-              style: AppTypography.displayHeadline.copyWith(
-                shadows: AppShadows.titleTextGlow,
-              ),
-            ),
+          GameTitleBrand(
+            eyebrow: AppText.labelCaps('reversed'.tr()),
+            title: 'minesweeper'.tr(),
           ),
           const SizedBox(height: AppSpacing.md),
           board,
@@ -109,39 +90,6 @@ class GuestPlayButton extends StatelessWidget {
   }
 }
 
-class _TitleGlowIcon extends StatelessWidget {
-  const _TitleGlowIcon();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: AppSizes.titleGlowOuter,
-      height: AppSizes.titleGlowOuter,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: AppGradients.titleIconGlow(AppColors.coralRed),
-        boxShadow: AppShadows.titleIcon(accent: AppColors.coralRed),
-      ),
-      child: Center(
-        child: Container(
-          width: AppSizes.titleGlowInner,
-          height: AppSizes.titleGlowInner,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: AppColors.surface.withValues(alpha: AppOpacity.surfaceStrong),
-            boxShadow: AppShadows.titleIcon(accent: AppColors.coralRed),
-          ),
-          child: Icon(
-            Icons.local_fire_department,
-            color: AppColors.coralRed,
-            size: AppSizes.iconMd,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class _FeatureRow extends StatelessWidget {
   const _FeatureRow({
     required this.color,
@@ -156,7 +104,7 @@ class _FeatureRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Container(
           width: AppSizes.featureIconBox,

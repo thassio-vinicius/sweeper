@@ -79,118 +79,130 @@ class _GameOverAnimationState extends State<GameOverAnimation>
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 280,
-      height: 280,
-      child: AnimatedBuilder(
-        animation: Listenable.merge([_sequence, _pulse]),
-        builder: (context, child) {
-          final glow = 0.55 + _pulse.value * 0.45;
-          return Stack(
-            alignment: Alignment.center,
-            children: [
-              CustomPaint(
-                size: const Size(280, 280),
-                painter: _BurstRingPainter(progress: _burst.value),
-              ),
-              ..._sparkOffsets().map(
-                (offset) => _Spark(
-                  offset: offset,
-                  progress: _burst.value,
-                  angle: offset.direction,
-                ),
-              ),
-              Transform.scale(
-                scale: _iconScale.value,
-                child: Container(
-                  width: 88,
-                  height: 88,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: AppGradients.titleIconGlow(AppColors.springGreen),
-                    boxShadow: AppShadows.titleIcon(accent: AppColors.springGreen),
+    return AnimatedBuilder(
+      animation: Listenable.merge([_sequence, _pulse]),
+      builder: (context, child) {
+        final glow = 0.55 + _pulse.value * 0.45;
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 280,
+              height: 168,
+              child: Stack(
+                alignment: Alignment.center,
+                clipBehavior: Clip.none,
+                children: [
+                  CustomPaint(
+                    size: const Size(280, 168),
+                    painter: _BurstRingPainter(progress: _burst.value),
                   ),
-                  child: Icon(
-                    Icons.emoji_events_rounded,
-                    color: AppColors.springGreen,
-                    size: AppSizes.iconXl,
+                  ..._sparkOffsets().map(
+                    (offset) => _Spark(
+                      offset: offset,
+                      progress: _burst.value,
+                      angle: offset.direction,
+                    ),
                   ),
-                ),
-              ),
-              Transform.translate(
-                offset: Offset(0, 72 + _badgeSlide.value),
-                child: Opacity(
-                  opacity: _countScale.value.clamp(0, 1),
-                  child: Transform.scale(
-                    scale: _countScale.value,
-                    child: Text(
-                      '${widget.discoveredCount}',
-                      style: TextStyle(
-                        fontSize: 80,
-                        fontWeight: FontWeight.w900,
-                        height: 1,
-                        foreground: Paint()
-                          ..shader = AppGradients.gradientHeadline.createShader(
-                            const Rect.fromLTWH(0, 0, 120, 80),
-                          ),
-                        shadows: [
-                          Shadow(
-                            color: AppColors.springGreen
-                                .withValues(alpha: 0.75 * glow),
-                            blurRadius: AppBlur.xl5,
-                          ),
-                          Shadow(
-                            color: AppColors.cyan.withValues(alpha: 0.35 * glow),
-                            blurRadius: AppBlur.xl7,
-                          ),
-                        ],
+                  Transform.scale(
+                    scale: _iconScale.value,
+                    child: Container(
+                      width: 88,
+                      height: 88,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: AppGradients.titleIconGlow(
+                          AppColors.springGreen,
+                        ),
+                        boxShadow: AppShadows.titleIcon(
+                          accent: AppColors.springGreen,
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.emoji_events_rounded,
+                        color: AppColors.springGreen,
+                        size: AppSizes.iconXl,
                       ),
                     ),
                   ),
-                ),
+                ],
               ),
-              Transform.translate(
-                offset: Offset(0, 148 + _badgeSlide.value * 0.5),
-                child: Opacity(
-                  opacity: _labelOpacity.value,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.lg,
-                      vertical: AppSpacing.sm,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface.withValues(alpha: 0.85),
-                      borderRadius: BorderRadius.circular(AppRadii.full),
-                      border: Border.all(
-                        color: AppColors.springGreen.withValues(alpha: 0.45),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.springGreen.withValues(alpha: 0.2),
-                          blurRadius: AppBlur.xl,
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Transform.translate(
+              offset: Offset(0, _badgeSlide.value),
+              child: Opacity(
+                opacity: _countScale.value.clamp(0, 1),
+                child: Transform.scale(
+                  scale: _countScale.value,
+                  child: Text(
+                    '${widget.discoveredCount}',
+                    style: TextStyle(
+                      fontSize: 72,
+                      fontWeight: FontWeight.w900,
+                      height: 1,
+                      foreground: Paint()
+                        ..shader = AppGradients.gradientHeadline.createShader(
+                          const Rect.fromLTWH(0, 0, 120, 72),
+                        ),
+                      shadows: [
+                        Shadow(
+                          color: AppColors.springGreen
+                              .withValues(alpha: 0.75 * glow),
+                          blurRadius: AppBlur.xl3,
+                        ),
+                        Shadow(
+                          color: AppColors.cyan.withValues(alpha: 0.35 * glow),
+                          blurRadius: AppBlur.xl5,
                         ),
                       ],
                     ),
-                    child: Text(
-                      widget.label,
-                      textAlign: TextAlign.center,
-                      style: AppTypography.bodyFeature.copyWith(
-                        color: AppColors.textPrimary,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Transform.translate(
+              offset: Offset(0, _badgeSlide.value * 0.5),
+              child: Opacity(
+                opacity: _labelOpacity.value,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.lg,
+                    vertical: AppSpacing.sm,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface.withValues(alpha: 0.85),
+                    borderRadius: BorderRadius.circular(AppRadii.full),
+                    border: Border.all(
+                      color: AppColors.springGreen.withValues(alpha: 0.45),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.springGreen.withValues(alpha: 0.2),
+                        blurRadius: AppBlur.xl,
                       ),
+                    ],
+                  ),
+                  child: Text(
+                    widget.label,
+                    textAlign: TextAlign.center,
+                    style: AppTypography.bodyFeature.copyWith(
+                      color: AppColors.textPrimary,
                     ),
                   ),
                 ),
               ),
-            ],
-          );
-        },
-      ),
+            ),
+          ],
+        );
+      },
     );
   }
 
   List<Offset> _sparkOffsets() {
     const count = 12;
-    const radius = 118.0;
+    const radius = 72.0;
     return List.generate(count, (index) {
       final angle = (index / count) * math.pi * 2 - math.pi / 2;
       return Offset(math.cos(angle) * radius, math.sin(angle) * radius);
@@ -262,7 +274,7 @@ class _BurstRingPainter extends CustomPainter {
     for (final ring in rings) {
       final t = ((progress - ring.delay) / (1 - ring.delay)).clamp(0.0, 1.0);
       if (t <= 0) continue;
-      final radius = size.shortestSide * 0.22 * ring.maxScale * t;
+      final radius = size.shortestSide * 0.28 * ring.maxScale * t;
       final paint = Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = 3 * (1 - t * 0.6)

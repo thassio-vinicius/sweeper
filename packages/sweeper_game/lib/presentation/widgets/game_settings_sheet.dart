@@ -18,6 +18,7 @@ Future<bool?> showGameSettingsSheet(
 
   return showModalBottomSheet<bool>(
     context: context,
+    isScrollControlled: true,
     backgroundColor: AppColors.surface,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
@@ -25,12 +26,13 @@ Future<bool?> showGameSettingsSheet(
     builder: (sheetContext) {
       return BlocBuilder<SettingsCubit, SettingsState>(
         builder: (context, settings) {
-          return Padding(
-            padding: const EdgeInsets.all(AppSpacing.xxl),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+          return SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(AppSpacing.xxl),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                 Text(
                   'settings'.tr(),
                   style: Theme.of(context).textTheme.headlineLarge,
@@ -122,7 +124,8 @@ Future<bool?> showGameSettingsSheet(
                     );
                   },
                 ),
-              ],
+                ],
+              ),
             ),
           );
         },
