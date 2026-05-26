@@ -1,25 +1,32 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:sweeper_settings/settings_cubit.dart';
-import 'package:sweeper_settings/settings_storage.dart';
+import 'package:sweeper_settings/domain/entities/user_settings.dart';
+import 'package:sweeper_settings/domain/repositories/settings_repository.dart';
+import 'package:sweeper_settings/presentation/cubit/settings_cubit.dart';
+import 'package:sweeper_settings/presentation/cubit/settings_state.dart';
 
-class MockSettingsStorage extends Mock implements SettingsStorage {}
+class MockSettingsRepository extends Mock implements SettingsRepository {}
 
 void main() {
-  late MockSettingsStorage storage;
+  late MockSettingsRepository repository;
+
+  setUpAll(() {
+    registerFallbackValue(8);
+  });
 
   setUp(() {
-    storage = MockSettingsStorage();
-    when(() => storage.readGridSize()).thenAnswer((_) async => null);
-    when(() => storage.readLanguageCode()).thenAnswer((_) async => null);
-    when(() => storage.writeGridSize(any())).thenAnswer((_) async {});
-    when(() => storage.writeLanguageCode(any())).thenAnswer((_) async {});
+    repository = MockSettingsRepository();
+    when(repository.load).thenAnswer(
+      (_) async => const UserSettings(),
+    );
+    when(() => repository.saveGridSize(any())).thenAnswer((_) async {});
+    when(() => repository.saveLanguageCode(any())).thenAnswer((_) async {});
   });
 
   blocTest<SettingsCubit, SettingsState>(
     'load applies defaults when storage is empty',
-    build: () => SettingsCubit(storage),
+    build: () => SettingsCubit(repository),
     act: (cubit) => cubit.load(),
     expect: () => [
       const SettingsState(isLoaded: true, gridSize: 10, languageCode: 'en'),
@@ -29,10 +36,11 @@ void main() {
   blocTest<SettingsCubit, SettingsState>(
     'load restores persisted grid size and language',
     setUp: () {
-      when(() => storage.readGridSize()).thenAnswer((_) async => 12);
-      when(() => storage.readLanguageCode()).thenAnswer((_) async => 'es');
+      when(repository.load).thenAnswer(
+        (_) async => const UserSettings(gridSize: 12, languageCode: 'es'),
+      );
     },
-    build: () => SettingsCubit(storage),
+    build: () => SettingsCubit(repository),
     act: (cubit) => cubit.load(),
     expect: () => [
       const SettingsState(isLoaded: true, gridSize: 12, languageCode: 'es'),
@@ -41,36 +49,36 @@ void main() {
 
   blocTest<SettingsCubit, SettingsState>(
     'setGridSize persists and emits',
-    build: () => SettingsCubit(storage),
+    build: () => SettingsCubit(repository),
     seed: () => const SettingsState(isLoaded: true),
     act: (cubit) => cubit.setGridSize(8),
     expect: () => [const SettingsState(isLoaded: true, gridSize: 8)],
     verify: (_) {
-      verify(() => storage.writeGridSize(8)).called(1);
+      verify(() => repository.saveGridSize(8)).called(1);
     },
   );
 
   blocTest<SettingsCubit, SettingsState>(
     'setLanguageCode persists and emits',
-    build: () => SettingsCubit(storage),
+    build: () => SettingsCubit(repository),
     seed: () => const SettingsState(isLoaded: true, languageCode: 'en'),
     act: (cubit) => cubit.setLanguageCode('pt'),
     expect: () => [
       const SettingsState(isLoaded: true, languageCode: 'pt'),
     ],
     verify: (_) {
-      verify(() => storage.writeLanguageCode('pt')).called(1);
+      verify(() => repository.saveLanguageCode('pt')).called(1);
     },
   );
 
   blocTest<SettingsCubit, SettingsState>(
     'setGridSize ignores unsupported sizes',
-    build: () => SettingsCubit(storage),
+    build: () => SettingsCubit(repository),
     seed: () => const SettingsState(isLoaded: true, gridSize: 10),
     act: (cubit) => cubit.setGridSize(9),
     expect: () => <SettingsState>[],
     verify: (_) {
-      verifyNever(() => storage.writeGridSize(any()));
+      verifyNever(() => repository.saveGridSize(any()));
     },
   );
 }

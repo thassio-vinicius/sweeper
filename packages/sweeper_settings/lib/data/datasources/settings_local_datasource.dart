@@ -1,4 +1,5 @@
-abstract class SettingsStorage {
+/// Low-level persistence for raw settings values.
+abstract class SettingsLocalDataSource {
   Future<int?> readGridSize();
 
   Future<void> writeGridSize(int size);

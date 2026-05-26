@@ -90,7 +90,7 @@ sweeper/                          ← App shell (android/, ios/, lib/)
 │   ├── sweeper_theme/            ← Design tokens, AppTheme, shared widgets + SVG assets
 │   ├── sweeper_l10n/             ← JSON translations + easy_localization loader
 │   ├── sweeper_auth/             ← Firebase/Google auth, session, login UI
-│   ├── sweeper_settings/         ← Board-size preferences (SettingsCubit)
+│   ├── sweeper_settings/         ← Preferences (domain, data, presentation)
 │   └── sweeper_game/             ← Game domain, data, presentation
 ├── .env.example                  ← Committed template (copy to `.env`, gitignored)
 ├── melos.yaml
@@ -115,11 +115,11 @@ State management: **Cubits** (`flutter_bloc`) — registered in the widget tree 
 sweeper (app)
   ├── sweeper_auth ──► sweeper_theme, sweeper_l10n
   ├── sweeper_game ──► sweeper_auth, sweeper_theme, sweeper_l10n, sweeper_settings
-  ├── sweeper_settings (standalone cubit)
+  ├── sweeper_settings ──► sweeper_theme, sweeper_l10n
   ├── sweeper_theme
   └── sweeper_l10n
 
-sweeper_game ──► sweeper_settings   (grid size → GameConfig.fromGridSize)
+sweeper_game ──► sweeper_settings   (grid size → GameConfig.fromGridSize; game menu embeds settings sheet)
 ```
 
 ### Key design decisions

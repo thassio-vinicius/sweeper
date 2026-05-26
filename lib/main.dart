@@ -14,7 +14,7 @@ Future<void> main() async {
   await configureDependencies();
   await warmUpAuthSession();
 
-  final settingsCubit = SettingsCubit(getIt<SettingsStorage>());
+  final settingsCubit = SettingsCubit(getIt<SettingsRepository>());
   await settingsCubit.load();
 
   runApp(

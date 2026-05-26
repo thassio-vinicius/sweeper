@@ -12,6 +12,10 @@ dependencies:
   equatable: ^2.0.7
   flutter_bloc: ^9.1.1
   shared_preferences: ^2.5.3
+  sweeper_l10n:
+    path: ../sweeper_l10n
+  sweeper_theme:
+    path: ../sweeper_theme
 
 dev_dependencies:
   flutter_test:

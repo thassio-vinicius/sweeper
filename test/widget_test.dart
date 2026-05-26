@@ -21,25 +21,26 @@ class MockClock extends Mock implements Clock {}
 
 class MockAuthRepository extends Mock implements AuthRepository {}
 
-class MockSettingsStorage extends Mock implements SettingsStorage {}
+class MockSettingsRepository extends Mock implements SettingsRepository {}
 
 void main() {
   late MockBtcPriceRepository btcRepo;
   late MockClock clock;
   late MockAuthRepository authRepo;
-  late MockSettingsStorage settingsStorage;
+  late MockSettingsRepository settingsRepository;
 
   setUpAll(() async {
     TestWidgetsFlutterBinding.ensureInitialized();
     SharedPreferences.setMockInitialValues({});
     await EasyLocalization.ensureInitialized();
+    registerFallbackValue(8);
   });
 
   setUp(() {
     btcRepo = MockBtcPriceRepository();
     clock = MockClock();
     authRepo = MockAuthRepository();
-    settingsStorage = MockSettingsStorage();
+    settingsRepository = MockSettingsRepository();
 
     when(() => btcRepo.watchPrice()).thenAnswer((_) => const Stream.empty());
     when(() => btcRepo.connect()).thenAnswer((_) async {});
@@ -49,14 +50,16 @@ void main() {
     when(() => authRepo.authStateChanges).thenAnswer((_) => const Stream.empty());
     when(() => authRepo.currentUser).thenReturn(null);
     when(() => authRepo.waitForInitialAuthState()).thenAnswer((_) async {});
-    when(() => settingsStorage.readGridSize()).thenAnswer((_) async => 8);
-    when(() => settingsStorage.readLanguageCode()).thenAnswer((_) async => 'en');
-    when(() => settingsStorage.writeGridSize(any())).thenAnswer((_) async {});
-    when(() => settingsStorage.writeLanguageCode(any())).thenAnswer((_) async {});
+    when(settingsRepository.load).thenAnswer(
+      (_) async => const UserSettings(gridSize: 8, languageCode: 'en'),
+    );
+    when(() => settingsRepository.saveGridSize(any())).thenAnswer((_) async {});
+    when(() => settingsRepository.saveLanguageCode(any()))
+        .thenAnswer((_) async {});
   });
 
   testWidgets('GamePage renders title', (tester) async {
-    final settingsCubit = SettingsCubit(settingsStorage);
+    final settingsCubit = SettingsCubit(settingsRepository);
     await settingsCubit.load();
 
     await tester.pumpWidget(

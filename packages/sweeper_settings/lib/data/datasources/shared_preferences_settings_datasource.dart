@@ -1,7 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sweeper_settings/settings_storage.dart';
+import 'package:sweeper_settings/data/datasources/settings_local_datasource.dart';
 
-class SharedPreferencesSettingsStorage implements SettingsStorage {
+class SharedPreferencesSettingsDataSource implements SettingsLocalDataSource {
   static const _gridSizeKey = 'settings.grid_size';
   static const _languageCodeKey = 'settings.language_code';
 

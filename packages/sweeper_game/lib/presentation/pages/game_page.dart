@@ -10,7 +10,7 @@ import 'package:sweeper_game/presentation/widgets/board_grid.dart';
 import 'package:sweeper_game/presentation/widgets/game_header.dart';
 import 'package:sweeper_game/presentation/widgets/game_hud.dart';
 import 'package:sweeper_game/presentation/widgets/game_pause_overlay.dart';
-import 'package:sweeper_game/presentation/widgets/game_settings_sheet.dart';
+import 'package:sweeper_game/presentation/widgets/game_menu_sheet.dart';
 import 'package:sweeper_game/presentation/widgets/game_stats_grid.dart';
 import 'package:sweeper_game/presentation/widgets/magic_bomb_banner.dart';
 import 'package:sweeper_l10n/sweeper_l10n.dart';
@@ -62,7 +62,7 @@ class _GamePageState extends State<GamePage> {
   }
 
   Future<void> _openSettings(GameCubit gameCubit) async {
-    final sessionEnded = await showGameSettingsSheet(
+    final sessionEnded = await showGameMenuSheet(
       context,
       gameCubit: gameCubit,
     );
