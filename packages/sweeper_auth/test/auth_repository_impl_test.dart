@@ -33,4 +33,59 @@ void main() {
 
     expect(result, user);
   });
+
+  test('signInWithGoogle maps unexpected errors to AuthFailure', () async {
+    when(remote.signInWithGoogle).thenThrow(Exception('network'));
+
+    expect(
+      () => repository.signInWithGoogle(),
+      throwsA(
+        isA<AuthFailure>().having(
+          (e) => e.message,
+          'message',
+          contains('network'),
+        ),
+      ),
+    );
+  });
+
+  test('signOut delegates to remote', () async {
+    when(remote.signOut).thenAnswer((_) async {});
+
+    await repository.signOut();
+
+    verify(remote.signOut).called(1);
+  });
+
+  test('waitForInitialAuthState delegates to remote', () async {
+    when(remote.waitForInitialAuthState).thenAnswer((_) async {});
+
+    await repository.waitForInitialAuthState();
+
+    verify(remote.waitForInitialAuthState).called(1);
+  });
+
+  test('currentUser delegates to remote', () {
+    const user = AuthUser(id: '1', email: 'a@b.com');
+    when(() => remote.currentUser).thenReturn(user);
+
+    expect(repository.currentUser, user);
+    verify(() => remote.currentUser).called(1);
+  });
+
+  test('signInWithGoogle rethrows AuthFailure unchanged', () async {
+    when(remote.signInWithGoogle).thenThrow(const AuthFailure('denied'));
+
+    expect(
+      () => repository.signInWithGoogle(),
+      throwsA(isA<AuthFailure>().having((e) => e.message, 'message', 'denied')),
+    );
+  });
+
+  test('authStateChanges delegates to remote', () {
+    when(remote.watchAuthState).thenAnswer((_) => const Stream.empty());
+
+    expect(repository.authStateChanges, isA<Stream<AuthUser?>>());
+    verify(remote.watchAuthState).called(1);
+  });
 }

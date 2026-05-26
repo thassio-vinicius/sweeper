@@ -188,8 +188,40 @@ Ensure `GoogleService-Info.plist` is in `ios/Runner/` (copy from `.example` or F
 
 ## Testing
 
-44 tests (unit/widget) across the monorepo (game engine, cubit, settings, auth, routing, widgets):
+**119 tests** (unit/widget) across the monorepo — game engine, cubits, settings, auth, routing, and widgets.
 
 ```bash
 dart run melos test
+```
+
+### Coverage
+
+| Scope | Lines |
+| --- | --- |
+| **Overall** (all `lib/` under test) | **87.3%** (751/860) |
+| **Core logic** (domain, data, cubits, session) | **97.7%** (589/603) |
+
+Measured by merging `coverage/lcov.info` from every package that has tests (app shell, `sweeper_auth`, `sweeper_game`, `sweeper_settings`, `sweeper_theme`).
+
+**How the merged number is computed**
+
+1. Run `flutter test --coverage` in each package with a `test/` directory. Flutter writes `coverage/lcov.info` per package; paths inside are relative (`lib/...`).
+2. Prefix package paths when merging (`packages/sweeper_game/lib/...`, etc.) so files from different modules do not collide. App-shell paths stay as `lib/...`.
+3. For each source file, read lcov `LF` (lines found) and `LH` (lines hit) and sum across all merged files under `lib/`.
+4. **Overall** = total `LH` ÷ total `LF`. **Core logic** uses the same merge but only counts `domain/`, `data/`, `presentation/cubit/`, `session/`, and `core/clock.dart`.
+
+Packages without tests (e.g. `sweeper_l10n`) are not instrumented and are excluded from the denominator. UI widgets and theme tokens are included in overall coverage but excluded from the core-logic figure.
+
+**Regenerate locally**
+
+```bash
+dart run melos exec --dir-exists=test -- flutter test --coverage
+# then merge the five lcov files (requires lcov):
+lcov --add-tracefile coverage/lcov.info \
+     --add-tracefile packages/sweeper_auth/coverage/lcov.info \
+     --add-tracefile packages/sweeper_game/coverage/lcov.info \
+     --add-tracefile packages/sweeper_settings/coverage/lcov.info \
+     --add-tracefile packages/sweeper_theme/coverage/lcov.info \
+     --output-file coverage/merged.info
+lcov --summary coverage/merged.info
 ```

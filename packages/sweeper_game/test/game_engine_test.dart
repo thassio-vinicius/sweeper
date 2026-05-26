@@ -5,6 +5,7 @@ import 'package:sweeper_game/domain/entities/game_config.dart';
 import 'package:sweeper_game/domain/entities/game_entities.dart';
 import 'package:sweeper_game/domain/entities/game_events.dart';
 import 'package:sweeper_game/domain/services/game_engine.dart';
+import 'test_helpers/board_moves.dart';
 
 void _openMagicBombSlot(GameEngine engine) {
   engine.onTimerTick();
@@ -42,6 +43,24 @@ void main() {
       engine = GameEngine(config: config, random: Random(42));
     });
 
+    test('snapshot throws before initialize', () {
+      expect(() => engine.snapshot, throwsStateError);
+    });
+
+    test('restart re-initializes with optional config', () {
+      engine.initialize();
+      final restarted = engine.restart(
+        config: const GameConfig(
+          gridSize: 8,
+          initialBombCount: 8,
+          emptyCellBuffer: 8,
+        ),
+      );
+
+      expect(restarted.snapshot.config.gridSize, 8);
+      expect(engine.restart().snapshot.phase, GamePhase.playing);
+    });
+
     test('initialize places bombs and pieces', () {
       final result = engine.initialize();
       final snapshot = result.snapshot;
@@ -60,6 +79,40 @@ void main() {
       }
       expect(hiddenBombs, config.initialBombCount);
       expect(pieces, config.initialPieces);
+    });
+
+    test('move from empty cell or to same cell is invalid', () {
+      engine.initialize();
+
+      expect(
+        engine.movePiece(fromRow: 0, fromCol: 0, toRow: 0, toCol: 0).events,
+        contains(isA<InvalidMoveEvent>()),
+      );
+
+      int? emptyRow;
+      int? emptyCol;
+      outer:
+      for (var r = 0; r < config.gridSize; r++) {
+        for (var c = 0; c < config.gridSize; c++) {
+          if (engine.snapshot.board.cellAt(r, c).piece == null) {
+            emptyRow = r;
+            emptyCol = c;
+            break outer;
+          }
+        }
+      }
+
+      expect(
+        engine
+            .movePiece(
+              fromRow: emptyRow!,
+              fromCol: emptyCol!,
+              toRow: emptyRow,
+              toCol: emptyCol! + 1 < config.gridSize ? emptyCol + 1 : emptyCol,
+            )
+            .events,
+        contains(isA<InvalidMoveEvent>()),
+      );
     });
 
     test('move to occupied cell is invalid', () {
@@ -101,45 +154,60 @@ void main() {
     });
 
     test('move onto hidden bomb discovers it', () {
-      engine = GameEngine(config: config, random: Random(1));
-      engine.initialize();
-      final board = engine.snapshot.board;
-
-      int? pieceR, pieceC;
-      int? bombR, bombC;
-
-      for (var r = 0; r < config.gridSize; r++) {
-        for (var c = 0; c < config.gridSize; c++) {
-          final cell = board.cellAt(r, c);
-          if (cell.piece != null && pieceR == null) {
-            pieceR = r;
-            pieceC = c;
-          }
-          if (cell.bombStatus == BombStatus.hidden &&
-              cell.piece == null &&
-              bombR == null) {
-            bombR = r;
-            bombC = c;
-          }
-        }
+      MoveCoords? discoveryMove;
+      for (var seed = 0; seed < 30; seed++) {
+        engine = GameEngine(config: config, random: Random(seed));
+        engine.initialize();
+        discoveryMove = findHiddenBombMove(engine.snapshot);
+        if (discoveryMove != null) break;
       }
 
-      if (pieceR == null || bombR == null) return;
+      expect(
+        discoveryMove,
+        isNotNull,
+        reason: 'expected a discoverable hidden bomb within 30 seeds',
+      );
 
       final result = engine.movePiece(
-        fromRow: pieceR,
-        fromCol: pieceC!,
-        toRow: bombR,
-        toCol: bombC!,
+        fromRow: discoveryMove!.fromRow,
+        fromCol: discoveryMove.fromCol,
+        toRow: discoveryMove.toRow,
+        toCol: discoveryMove.toCol,
       );
 
       expect(result.events, contains(isA<BombDiscoveredEvent>()));
       expect(result.snapshot.discoveredBombCount, 1);
       expect(
-        result.snapshot.board.cellAt(bombR, bombC).bombStatus,
+        result.snapshot.board
+            .cellAt(discoveryMove.toRow, discoveryMove.toCol)
+            .bombStatus,
         BombStatus.discovered,
       );
-      expect(result.snapshot.board.cellAt(bombR, bombC).piece, isNotNull);
+    });
+
+    test('game over when last hidden bomb is discovered', () {
+      engine = GameEngine(
+        config: const GameConfig(
+          gridSize: 6,
+          initialBombCount: 1,
+          emptyCellBuffer: 2,
+        ),
+        random: Random(0),
+      );
+      engine.initialize();
+
+      final discoveryMove = findHiddenBombMove(engine.snapshot);
+      expect(discoveryMove, isNotNull);
+
+      final result = engine.movePiece(
+        fromRow: discoveryMove!.fromRow,
+        fromCol: discoveryMove.fromCol,
+        toRow: discoveryMove.toRow,
+        toCol: discoveryMove.toCol,
+      );
+
+      expect(result.events, contains(isA<GameOverEvent>()));
+      expect(result.snapshot.phase, GamePhase.gameOver);
     });
 
     test('timer tick explodes a random hidden bomb', () {
@@ -387,6 +455,96 @@ void main() {
 
       expect(result.events, contains(isA<MagicBombAddedEvent>()));
       expect(result.snapshot.board.hiddenBombCount, before + 1);
+    });
+
+    test('onTimerTick throws when not initialized', () {
+      expect(() => engine.onTimerTick(), throwsStateError);
+    });
+
+    test('updateCountdown throws when not initialized', () {
+      expect(() => engine.updateCountdown(5), throwsStateError);
+    });
+
+    test('move throws when engine is not initialized', () {
+      expect(
+        () => engine.movePiece(fromRow: 0, fromCol: 0, toRow: 0, toCol: 1),
+        throwsStateError,
+      );
+    });
+
+    test('onTimerTick is no-op when game over or no hidden bombs', () {
+      engine.initialize();
+      while (engine.snapshot.board.hiddenBombCount > 0) {
+        engine.onTimerTick();
+      }
+
+      final afterOver = engine.onTimerTick();
+      expect(afterOver.events, isEmpty);
+      expect(afterOver.snapshot.phase, GamePhase.gameOver);
+    });
+
+    test('updateCountdown writes seconds remaining', () {
+      engine.initialize();
+      final result = engine.updateCountdown(4);
+
+      expect(result.snapshot.secondsUntilNextBlast, 4);
+    });
+
+    test('updateCountdown is no-op after game over', () {
+      engine = GameEngine(
+        config: const GameConfig(
+          gridSize: 4,
+          initialBombCount: 1,
+          emptyCellBuffer: 1,
+        ),
+        random: Random(0),
+      );
+      engine.initialize();
+      while (engine.snapshot.board.hiddenBombCount > 0) {
+        engine.onTimerTick();
+      }
+
+      final result = engine.updateCountdown(3);
+      expect(result.events, isEmpty);
+    });
+
+    test('onBtcPriceUpdate requires initialization and ignores game over', () {
+      expect(
+        () => engine.onBtcPriceUpdate(
+          BtcPrice(priceUsd: 67455, receivedAt: DateTime.now()),
+        ),
+        throwsStateError,
+      );
+
+      engine.initialize();
+      while (engine.snapshot.board.hiddenBombCount > 0) {
+        engine.onTimerTick();
+      }
+
+      final result = engine.onBtcPriceUpdate(
+        BtcPrice(priceUsd: 67460, receivedAt: DateTime.now()),
+      );
+      expect(result.events, isEmpty);
+    });
+
+    test('move after game over throws', () {
+      engine = GameEngine(
+        config: const GameConfig(
+          gridSize: 4,
+          initialBombCount: 1,
+          emptyCellBuffer: 1,
+        ),
+        random: Random(0),
+      );
+      engine.initialize();
+      while (engine.snapshot.board.hiddenBombCount > 0) {
+        engine.onTimerTick();
+      }
+
+      expect(
+        () => engine.movePiece(fromRow: 0, fromCol: 0, toRow: 0, toCol: 1),
+        throwsStateError,
+      );
     });
 
     test('game over when all bombs discovered or exploded', () {
