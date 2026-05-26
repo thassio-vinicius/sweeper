@@ -55,7 +55,7 @@ flutter run
 ### Pause & settings
 
 - **Pause button** — Pauses the game and shows a pause overlay.
-- **Settings (gear)** — Opens the bottom sheet (board size, auth). The game pauses silently in the background (no pause overlay).
+- **Settings (gear)** — Opens the bottom sheet (board size, auth). The game pauses silently in the background.
 - **Board sizes** — 8×8, 10×10 (default), or 12×12 via Settings.
 
 ### Authentication & guest mode
@@ -289,8 +289,3 @@ dart run melos test
 
 Game rule tests live in `packages/sweeper_game/test/` — especially `game_engine_test.dart` for magic-bomb landing logic and bomb cap behaviour.
 
----
-
-## License
-
-Private — code challenge submission.
