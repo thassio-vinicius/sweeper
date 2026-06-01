@@ -4,7 +4,7 @@ import 'package:sweeper_game/domain/entities/game_entities.dart';
 import 'package:sweeper_game/presentation/cubit/game_state.dart';
 import 'package:sweeper_game/presentation/cubit/pause_reason.dart';
 
-GameSnapshot _snapshot({int discovered = 2, int hidden = 3}) {
+GameSnapshot _snapshot({int discovered = 2}) {
   final board = Board(
     gridSize: 2,
     cells: [

@@ -2,4 +2,5 @@
 abstract final class GameNavigation {
   static const home = '/';
   static const gameOver = '/game-over';
+  static const login = '/login';
 }
