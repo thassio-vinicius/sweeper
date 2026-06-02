@@ -29,14 +29,6 @@ Use Flutter 3.38.x or any release that ships Dart 3.10.4+. If you use [FVM](http
 
 ## Quick start
 
-Place the gitignored config files in the paths below before running.
-
-| File | Location |
-|------|----------|
-| `.env` | Repository root (`sweeper/.env`) |
-| `google-services.json` | `android/app/google-services.json` |
-| `GoogleService-Info.plist` | `ios/Runner/GoogleService-Info.plist` |
-
 ```bash
 # 1. Install Melos once (optional — also available via `dart run melos` at repo root)
 dart pub global activate melos
@@ -44,9 +36,16 @@ dart pub global activate melos
 # 2. Link local packages and run pub get everywhere
 dart run melos bootstrap
 
-# 3. Add the config files (see table above)
+# 3. Copy env template and fill in Firebase / Google Sign-In values
+cp .env.example .env
+# Values from Firebase Console or `flutterfire configure`
 
-# 4. Run on a device or simulator (Android / iOS only)
+# 4. Add Firebase native config (gitignored — not in the repo)
+cp android/app/google-services.json.example android/app/google-services.json
+cp ios/Runner/GoogleService-Info.plist.example ios/Runner/GoogleService-Info.plist
+# Replace placeholders with values from Firebase Console → Project settings → Your apps
+
+# 5. Run on a device or simulator (Android / iOS only)
 flutter run
 ```
 
@@ -54,7 +53,9 @@ flutter run
 
 **Internet required** for the Binance WebSocket BTC feed.
 
-The app will not start until `.env` and the native Firebase files are in place.
+**Firebase required:** copy `.env.example` → `.env` and add native config files before running. The app does not start without valid Firebase credentials.
+
+On **iOS**, ensure `GoogleService-Info.plist` is in `ios/Runner/` and the URL scheme from Firebase is set in `Info.plist`.
 
 ---
 
@@ -104,7 +105,7 @@ sweeper/                          ← App shell (android/, ios/, lib/)
 │   ├── sweeper_auth/             ← Firebase/Google auth, session, login UI
 │   ├── sweeper_settings/         ← Preferences (domain, data, presentation)
 │   └── sweeper_game/             ← Game domain, data, presentation
-├── .env                          ← Gitignored
+├── .env.example                  ← Committed template (copy to `.env`, gitignored)
 ├── melos.yaml
 └── pubspec.yaml
 ```
@@ -150,7 +151,7 @@ State management: **Cubits** (`flutter_bloc`) — registered in the widget tree 
 | Package | Purpose |
 |---------|---------|
 | `firebase_core` | Firebase initialization |
-| `flutter_dotenv` | Load `.env` at runtime |
+| `flutter_dotenv` | Load `.env` at runtime (local dev secrets) |
 | `flutter_bloc` | Cubit providers |
 | `get_it` | Dependency injection (services/repos) |
 | `go_router` | Declarative routing |

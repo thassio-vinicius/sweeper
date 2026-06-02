@@ -29,14 +29,6 @@ Use Flutter 3.38.x ou qualquer release que inclua Dart 3.10.4+. Se você usa [FV
 
 ## Início rápido
 
-Coloque os arquivos de config gitignored nos caminhos abaixo antes de executar.
-
-| Arquivo | Local |
-|---------|-------|
-| `.env` | Raiz do repositório (`sweeper/.env`) |
-| `google-services.json` | `android/app/google-services.json` |
-| `GoogleService-Info.plist` | `ios/Runner/GoogleService-Info.plist` |
-
 ```bash
 # 1. Install Melos once (optional — also available via `dart run melos` at repo root)
 dart pub global activate melos
@@ -44,9 +36,16 @@ dart pub global activate melos
 # 2. Link local packages and run pub get everywhere
 dart run melos bootstrap
 
-# 3. Adicione os arquivos de config (veja a tabela acima)
+# 3. Copie o template de env e preencha Firebase / Google Sign-In
+cp .env.example .env
+# Valores do Firebase Console ou `flutterfire configure`
 
-# 4. Run on a device or simulator (Android / iOS only)
+# 4. Adicione a config nativa do Firebase (gitignored — não está no repo)
+cp android/app/google-services.json.example android/app/google-services.json
+cp ios/Runner/GoogleService-Info.plist.example ios/Runner/GoogleService-Info.plist
+# Substitua os placeholders pelos valores do Firebase Console → Configurações do projeto → Seus apps
+
+# 5. Execute em dispositivo ou simulador (apenas Android / iOS)
 flutter run
 ```
 
@@ -54,7 +53,9 @@ flutter run
 
 **Internet necessária** para o feed de BTC via WebSocket da Binance.
 
-O app não inicia até que `.env` e os arquivos nativos do Firebase estejam no lugar.
+**Firebase obrigatório:** copie `.env.example` → `.env` e adicione os arquivos de config nativos antes de executar. O app não inicia sem credenciais Firebase válidas.
+
+No **iOS**, coloque `GoogleService-Info.plist` em `ios/Runner/` e configure o URL scheme do Firebase em `Info.plist`.
 
 ---
 
@@ -78,7 +79,7 @@ O app não inicia até que `.env` e os arquivos nativos do Firebase estejam no l
 | Cenário | Comportamento |
 |---------|---------------|
 | **iOS** | Google Sign-In obrigatório para jogar (sem modo convidado). |
-| **Android** | Google Sign-In **ou** **Jogar como convidado** (sem conta). |
+| **Android** | Google Sign-In **ou** **Jogar como convidado** para evitar registrar manualmente o certificado SHA-1 de debug no Firebase. |
 
 O modo convidado é resolvido na inicialização via `AppAccessConfig` (flag exclusiva do Android).
 
@@ -104,7 +105,7 @@ sweeper/                          ← App shell (android/, ios/, lib/)
 │   ├── sweeper_auth/             ← Firebase/Google auth, session, login UI
 │   ├── sweeper_settings/         ← Preferences (domain, data, presentation)
 │   └── sweeper_game/             ← Game domain, data, presentation
-├── .env                          ← Gitignored
+├── .env.example                  ← Template versionado (copie para `.env`, gitignored)
 ├── melos.yaml
 └── pubspec.yaml
 ```
@@ -150,7 +151,7 @@ Gerenciamento de estado: **Cubits** (`flutter_bloc`) — registrados na árvore 
 | Pacote | Propósito |
 |--------|-----------|
 | `firebase_core` | Inicialização do Firebase |
-| `flutter_dotenv` | Carrega `.env` em runtime |
+| `flutter_dotenv` | Carrega `.env` em runtime (segredos locais de dev) |
 | `flutter_bloc` | Provedores de Cubit |
 | `get_it` | Injeção de dependência (services/repos) |
 | `go_router` | Roteamento declarativo |
